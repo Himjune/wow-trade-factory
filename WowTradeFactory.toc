@@ -1,0 +1,6 @@
+## Interface: 20504
+## Title: Wow Trade Factory
+## Author: Ilja Poputnikov
+## Version: 1.0
+
+main.lua
