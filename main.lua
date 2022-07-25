@@ -1,4 +1,6 @@
 wtfacAucDump = {}  -- default value until ADDON_LOADED
+CONST_QUERY_DELAY = 0.5;
+
 local wtfacTrackedItems = {
     'Большой сверкающий осколок',
     'Огнецвет'
@@ -14,8 +16,35 @@ function scanPreActions()
     end
 end
 
+function parseUpdatedPage() 
+    batch,count = GetNumAuctionItems("list");
+    print(batch,count);
+
+    local isLastPage = (batch<50);
+    if batch > 0 then
+        print("Batch page "..batch .." of "..count);
+    end
+
+    if isLastPage then
+        scanItemIdx = scanItemIdx + 1;
+
+        if scanItemIdx > table.getn(wtfacTrackedItems) then
+            scanItemIdx = 0;
+            print("ended");
+        else
+            scanItemPage = 0;
+            C_Timer.After(CONST_QUERY_DELAY, queryItemScan);
+        end
+    else
+        scanItemPage = scanItemPage + 1;
+        C_Timer.After(CONST_QUERY_DELAY, queryItemScan);
+    end
+
+end
+
 function queryItemScan()
-    if scanItemIdx>0 then
+    if scanItemIdx>0 and scanItemIdx <= table.getn(wtfacTrackedItems) then
+        print("Query "..wtfacTrackedItems[scanItemIdx].."("..scanItemPage..")");
         QueryAuctionItems(wtfacTrackedItems[scanItemIdx], nil, nil, scanItemPage, nil, 0, false, true);
     end
 end
@@ -25,6 +54,7 @@ function scanAuctionForTrackedItems()
 
     scanItemIdx = 1;
     scanItemPage = 0;
+    print("GonnaScan " .. wtfacTrackedItems[scanItemIdx])
     queryItemScan();
 end
 
@@ -46,6 +76,7 @@ end
 local frame = CreateFrame("FRAME", "FooAddonFrame");
 frame:RegisterEvent("ADDON_LOADED");
 frame:RegisterEvent("AUCTION_ITEM_LIST_UPDATE");
+frame:RegisterEvent("AUCTION_BIDDER_LIST_UPDATE");
 
 
 local function eventHandler(event, ...)
@@ -57,7 +88,10 @@ local function eventHandler(event, ...)
     end
 
     if event == "AUCTION_ITEM_LIST_UPDATE" then
-        print("wtfac aiListUpdate")
+        print("wtfac aiListUpdate");
+        if scanItemIdx>0 then
+            parseUpdatedPage();
+        end
     end
 end
 frame:SetScript("OnEvent", eventHandler);
