@@ -22,7 +22,34 @@ function parseUpdatedPage()
 
     local isLastPage = (batch<50);
     if batch > 0 then
-        print("Batch page "..batch .." of "..count);
+        for itemIndex=1,batch do
+            local name, texture, count, quality, canUse, level, levelColHeader, minBid,
+            minIncrement, buyoutPrice, bidAmount, highBidder, bidderFullName, owner,
+            ownerFullName, saleStatus, itemId, hasAllInfo = GetAuctionItemInfo("list", itemIndex);
+            print(name.."("..count..") for "..buyoutPrice);
+
+            local singlePrice = math.floor(buyoutPrice/count);
+            local meaningfulPrice = math.floor(singlePrice/100)/100;
+
+            if buyoutPrice>0 then
+                if wtfacAucDump[scanItemIdx]["priceCounters"][meaningfulPrice] then
+                    wtfacAucDump[scanItemIdx]["priceCounters"][meaningfulPrice] = wtfacAucDump[scanItemIdx]["priceCounters"][meaningfulPrice] + count;
+                else
+                    wtfacAucDump[scanItemIdx]["priceCounters"][meaningfulPrice] = count;
+                end
+
+                wtfacAucDump[scanItemIdx]["buyable"] = wtfacAucDump[scanItemIdx]["buyable"] + count;
+    
+                --wtfacAucDump[scanItemIdx]["lots"][itemIndex+50*(scanItemPage)] = {};
+                --wtfacAucDump[scanItemIdx]["lots"][itemIndex+50*(scanItemPage)]["count"] = count;
+                --wtfacAucDump[scanItemIdx]["lots"][itemIndex+50*(scanItemPage)]["buyoutPrice"] = buyoutPrice;
+                --wtfacAucDump[scanItemIdx]["lots"][itemIndex+50*(scanItemPage)]["singlePrice"] = singlePrice;
+                --wtfacAucDump[scanItemIdx]["lots"][itemIndex+50*(scanItemPage)]["meaningfulPrice"] = meaningfulPrice;
+            end
+
+            wtfacAucDump[scanItemIdx]["control"] = wtfacAucDump[scanItemIdx]["control"] + 1;
+            wtfacAucDump[scanItemIdx]["all"] = wtfacAucDump[scanItemIdx]["all"] + count;
+        end
     end
 
     if isLastPage then
@@ -44,6 +71,16 @@ end
 
 function queryItemScan()
     if scanItemIdx>0 and scanItemIdx <= table.getn(wtfacTrackedItems) then
+        if scanItemPage == 0 then
+            wtfacAucDump[scanItemIdx] = {};
+            wtfacAucDump[scanItemIdx]["name"] = wtfacTrackedItems[scanItemIdx];
+            wtfacAucDump[scanItemIdx]["priceCounters"] = {};
+            wtfacAucDump[scanItemIdx]["lots"] = {};
+            wtfacAucDump[scanItemIdx]["control"] = 0;
+            wtfacAucDump[scanItemIdx]["buyable"] = 0;
+            wtfacAucDump[scanItemIdx]["all"] = 0;
+        end
+
         print("Query "..wtfacTrackedItems[scanItemIdx].."("..scanItemPage..")");
         QueryAuctionItems(wtfacTrackedItems[scanItemIdx], nil, nil, scanItemPage, nil, 0, false, true);
     end
@@ -54,6 +91,7 @@ function scanAuctionForTrackedItems()
 
     scanItemIdx = 1;
     scanItemPage = 0;
+    wtfacAucDump ={};
     print("GonnaScan " .. wtfacTrackedItems[scanItemIdx])
     queryItemScan();
 end
