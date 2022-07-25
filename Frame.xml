@@ -1,9 +1,3 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
     <Script File="main.lua"/>
-
-    <Frame name="WTFac_Frame">
-        <Scripts>
-            <OnEvent function="WTFac_OnEvent"/>
-        </Scripts>
-    </Frame>
 </Ui>
