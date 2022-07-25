@@ -106,6 +106,10 @@ SlashCmdList["WTFAC"] = function(msg)
         end
     end
 
+    if msg == "stop" then
+        scanItemIdx = 0;
+    end
+
     if msg == "rel" then
         ReloadUI();
     end
