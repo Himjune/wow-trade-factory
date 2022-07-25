@@ -1,6 +1,11 @@
 wtfacAucDump = {}  -- default value until ADDON_LOADED
-local wtfacTrackedItems = {"Большой всеркающий осколок"};
-local scanInProgress = false;
+local wtfacTrackedItems = {
+    'Большой сверкающий осколок',
+    'Огнецвет'
+};
+
+local scanItemIdx = 0; -- 0 indicates no search in progress
+local scanItemPage = 0;
 
 function scanPreActions()
     SortAuctionItems("list", "buyout");
@@ -9,18 +14,28 @@ function scanPreActions()
     end
 end
 
+function queryItemScan()
+    if scanItemIdx>0 then
+        QueryAuctionItems(wtfacTrackedItems[scanItemIdx], nil, nil, scanItemPage, nil, 0, false, true);
+    end
+end
+
 function scanAuctionForTrackedItems()
     scanPreActions();
+
+    scanItemIdx = 1;
+    scanItemPage = 0;
+    queryItemScan();
 end
 
 SLASH_WTFAC1 = "/wtfac"
 SlashCmdList["WTFAC"] = function(msg)
     if msg == "scan" then
-        local canQuery,canQueryAll = CanSendAuctionQuery()
-        scanAuctionForTrackedItems();
-        QueryAuctionItems("Большой сверкающий");
-
-        print(canQuery,canQueryAll);
+        local canQuery,canQueryAll = CanSendAuctionQuery();
+        if canQuery then
+            scanItemIdx = 1;
+            scanAuctionForTrackedItems();
+        end
     end
 
     if msg == "rel" then
