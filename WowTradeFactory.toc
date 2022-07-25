@@ -2,5 +2,6 @@
 ## Title: Wow Trade Factory
 ## Author: Ilja Poputnikov
 ## Version: 1.0
+## SavedVariables: wtfacAucDump
 
-main.lua
+Frame.xml
