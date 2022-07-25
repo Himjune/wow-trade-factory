@@ -2,7 +2,7 @@ wtfacAucDump = {}  -- default value until ADDON_LOADED
 
 SLASH_WTFAC1 = "/wtfac"
 SlashCmdList["WTFAC"] = function(msg)
-    message('My first addon!'..msg);
+    ReloadUI();
 end
 
 local frame = CreateFrame("FRAME", "FooAddonFrame");
