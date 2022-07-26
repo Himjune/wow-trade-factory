@@ -21,6 +21,8 @@ function parseUpdatedPage()
     print(batch,count);
 
     local isLastPage = (batch<50);
+    local itemName = wtfacTrackedItems[scanItemIdx];
+
     if batch > 0 then
         for itemIndex=1,batch do
             local name, texture, count, quality, canUse, level, levelColHeader, minBid,
@@ -32,23 +34,23 @@ function parseUpdatedPage()
             local meaningfulPrice = math.floor(singlePrice/100)/100;
 
             if buyoutPrice>0 then
-                if wtfacAucDump[scanItemIdx]["priceCounters"][meaningfulPrice] then
-                    wtfacAucDump[scanItemIdx]["priceCounters"][meaningfulPrice] = wtfacAucDump[scanItemIdx]["priceCounters"][meaningfulPrice] + count;
+                if wtfacAucDump[itemName]["priceCounters"][meaningfulPrice] then
+                    wtfacAucDump[itemName]["priceCounters"][meaningfulPrice] = wtfacAucDump[itemName]["priceCounters"][meaningfulPrice] + count;
                 else
-                    wtfacAucDump[scanItemIdx]["priceCounters"][meaningfulPrice] = count;
+                    wtfacAucDump[itemName]["priceCounters"][meaningfulPrice] = count;
                 end
 
-                wtfacAucDump[scanItemIdx]["buyable"] = wtfacAucDump[scanItemIdx]["buyable"] + count;
+                wtfacAucDump[itemName]["buyable"] = wtfacAucDump[itemName]["buyable"] + count;
     
-                --wtfacAucDump[scanItemIdx]["lots"][itemIndex+50*(scanItemPage)] = {};
-                --wtfacAucDump[scanItemIdx]["lots"][itemIndex+50*(scanItemPage)]["count"] = count;
-                --wtfacAucDump[scanItemIdx]["lots"][itemIndex+50*(scanItemPage)]["buyoutPrice"] = buyoutPrice;
-                --wtfacAucDump[scanItemIdx]["lots"][itemIndex+50*(scanItemPage)]["singlePrice"] = singlePrice;
-                --wtfacAucDump[scanItemIdx]["lots"][itemIndex+50*(scanItemPage)]["meaningfulPrice"] = meaningfulPrice;
+                --wtfacAucDump[itemName]["lots"][itemIndex+50*(scanItemPage)] = {};
+                --wtfacAucDump[itemName]["lots"][itemIndex+50*(scanItemPage)]["count"] = count;
+                --wtfacAucDump[itemName]["lots"][itemIndex+50*(scanItemPage)]["buyoutPrice"] = buyoutPrice;
+                --wtfacAucDump[itemName]["lots"][itemIndex+50*(scanItemPage)]["singlePrice"] = singlePrice;
+                --wtfacAucDump[itemName]["lots"][itemIndex+50*(scanItemPage)]["meaningfulPrice"] = meaningfulPrice;
             end
 
-            wtfacAucDump[scanItemIdx]["control"] = wtfacAucDump[scanItemIdx]["control"] + 1;
-            wtfacAucDump[scanItemIdx]["all"] = wtfacAucDump[scanItemIdx]["all"] + count;
+            wtfacAucDump[itemName]["control"] = wtfacAucDump[itemName]["control"] + 1;
+            wtfacAucDump[itemName]["all"] = wtfacAucDump[itemName]["all"] + count;
         end
     end
 
@@ -71,14 +73,15 @@ end
 
 function queryItemScan()
     if scanItemIdx>0 and scanItemIdx <= table.getn(wtfacTrackedItems) then
+        local itemName = wtfacTrackedItems[scanItemIdx];
+
         if scanItemPage == 0 then
-            wtfacAucDump[scanItemIdx] = {};
-            wtfacAucDump[scanItemIdx]["name"] = wtfacTrackedItems[scanItemIdx];
-            wtfacAucDump[scanItemIdx]["priceCounters"] = {};
-            wtfacAucDump[scanItemIdx]["lots"] = {};
-            wtfacAucDump[scanItemIdx]["control"] = 0;
-            wtfacAucDump[scanItemIdx]["buyable"] = 0;
-            wtfacAucDump[scanItemIdx]["all"] = 0;
+            wtfacAucDump[itemName] = {};
+            wtfacAucDump[itemName]["priceCounters"] = {};
+            wtfacAucDump[itemName]["lots"] = {};
+            wtfacAucDump[itemName]["control"] = 0;
+            wtfacAucDump[itemName]["buyable"] = 0;
+            wtfacAucDump[itemName]["all"] = 0;
         end
 
         print("Query "..wtfacTrackedItems[scanItemIdx].."("..scanItemPage..")");
@@ -123,14 +126,14 @@ frame:RegisterEvent("AUCTION_BIDDER_LIST_UPDATE");
 
 local function eventHandler(event, ...)
     local event, arg1, arg2, arg3, arg4 = select(1,...);
-    print("WTFac event "..event);
+    -- print("WTFac event "..event);
 
     if event == "ADDON_LOADED" and arg1 == "WowTradeFactory" then
         print("WTFac loaded");
     end
 
     if event == "AUCTION_ITEM_LIST_UPDATE" then
-        print("wtfac aiListUpdate");
+        -- print("wtfac aiListUpdate");
         if scanItemIdx>0 then
             parseUpdatedPage();
         end
