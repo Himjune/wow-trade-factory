@@ -34,6 +34,7 @@ function parseUpdatedPage()
             local meaningfulPrice = math.floor(singlePrice/100)/100;
 
             if buyoutPrice>0 then
+                
                 if wtfacAucDump[itemName]["priceCounters"][meaningfulPrice] then
                     wtfacAucDump[itemName]["priceCounters"][meaningfulPrice] = wtfacAucDump[itemName]["priceCounters"][meaningfulPrice] + count;
                 else
@@ -55,6 +56,7 @@ function parseUpdatedPage()
     end
 
     if isLastPage then
+        wtfacAucDump[itemName]["ts"] = time();
         scanItemIdx = scanItemIdx + 1;
 
         if scanItemIdx > table.getn(wtfacTrackedItems) then
