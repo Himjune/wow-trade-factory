@@ -1,7 +1,9 @@
+wtfacLastScan = 0;
 wtfacAucDump = {}  -- default value until ADDON_LOADED
 CONST_QUERY_DELAY = 0.5;
 
 local wtfacTrackedItems = {
+    'Блестящее масло маны',
     'Большой сверкающий осколок',
     'Огнецвет'
 };
@@ -28,12 +30,12 @@ function parseUpdatedPage()
             local name, texture, count, quality, canUse, level, levelColHeader, minBid,
             minIncrement, buyoutPrice, bidAmount, highBidder, bidderFullName, owner,
             ownerFullName, saleStatus, itemId, hasAllInfo = GetAuctionItemInfo("list", itemIndex);
-            print(name.."("..count..") for "..buyoutPrice);
+            -- print(name.."("..count..") for "..buyoutPrice);
 
             local singlePrice = math.floor(buyoutPrice/count);
             local meaningfulPrice = math.floor(singlePrice/100)/100;
 
-            if buyoutPrice>0 then
+            if buyoutPrice > 0 then
                 
                 if wtfacAucDump[itemName]["priceCounters"][meaningfulPrice] then
                     wtfacAucDump[itemName]["priceCounters"][meaningfulPrice] = wtfacAucDump[itemName]["priceCounters"][meaningfulPrice] + count;
@@ -48,6 +50,8 @@ function parseUpdatedPage()
                 --wtfacAucDump[itemName]["lots"][itemIndex+50*(scanItemPage)]["buyoutPrice"] = buyoutPrice;
                 --wtfacAucDump[itemName]["lots"][itemIndex+50*(scanItemPage)]["singlePrice"] = singlePrice;
                 --wtfacAucDump[itemName]["lots"][itemIndex+50*(scanItemPage)]["meaningfulPrice"] = meaningfulPrice;
+            else
+                print("NonB"..name..buyoutPrice)
             end
 
             wtfacAucDump[itemName]["control"] = wtfacAucDump[itemName]["control"] + 1;
@@ -61,6 +65,7 @@ function parseUpdatedPage()
 
         if scanItemIdx > table.getn(wtfacTrackedItems) then
             scanItemIdx = 0;
+            wtfacLastScan = time();
             print("ended");
         else
             scanItemPage = 0;
@@ -86,7 +91,7 @@ function queryItemScan()
             wtfacAucDump[itemName]["all"] = 0;
         end
 
-        print("Query "..wtfacTrackedItems[scanItemIdx].."("..scanItemPage..")");
+        --print("Query "..wtfacTrackedItems[scanItemIdx].."("..scanItemPage..")");
         QueryAuctionItems(wtfacTrackedItems[scanItemIdx], nil, nil, scanItemPage, nil, 0, false, true);
     end
 end
