@@ -1,0 +1,23 @@
+{
+  "name": "wowtradefactory",
+  "version": "1.0.0",
+  "description": "Backend for WowTradeFactory util",
+  "main": "backend.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node backend.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Himjune/wow-trade-factory.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Himjune/wow-trade-factory/issues"
+  },
+  "homepage": "https://github.com/Himjune/wow-trade-factory#readme",
+  "dependencies": {
+    "express": "^4.18.1"
+  }
+}
