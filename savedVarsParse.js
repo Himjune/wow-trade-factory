@@ -7,11 +7,23 @@ async function parseLuaFileLine(it) {
   let lineObj = await it.next(); // ToDo: Should handle empty lines
   if (lineObj.done) return false;
 
+  let luaObject = {};  
+
   // ToDo: should handle ',' at the end of a line
-  let line = lineObj.value.replace(/[\t,\"\[\]]+/gm, "").trim();
+  let line = lineObj.value
+            .replace(/[\t,\"\[\]]+/gm, "")
+            .trim();
   console.log("|"+line+"|");
+  
   let kv = line.split(" = ");
-  return {key: kv[0], val: kv[1]};
+  let commentSplit = kv[0].split(" -- ");
+
+  if (commentSplit.length > 1)
+    luaObject = {key: commentSplit[1], val: tryParseNum(commentSplit[0])}
+  else 
+    luaObject = {key: kv[0], val: tryParseNum(kv[1])}
+
+  return luaObject;
 }
 
 function tryParseNum(val) {
