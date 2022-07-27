@@ -14,7 +14,7 @@ async function parseLuaFileLine(it) {
   let line = lineObj.value
             .replace(/[\t,\"\[\]]+/gm, "")
             .trim();
-  console.log("|"+line+"|");
+  //console.log("|"+line+"|");
   
   let kv = line.split(" = ");
   let commentSplit = kv[0].split(" -- ");
@@ -50,7 +50,7 @@ async function parseObjectContents(it) {
   let contents = {}
   let varObj = await parseObjLine(it);
   while (varObj) {
-    console.log("parseSavedVarFromFile", varObj)
+    //console.log("parseSavedVarFromFile", varObj)
     if (varObj.isValObj) varObj.val = await parseObjectContents(it);
     contents[varObj.key] = varObj.val;
 
@@ -62,7 +62,7 @@ async function parseObjectContents(it) {
 
 async function parseSavedVarFromFile(it) {
   let varObj = await parseObjLine(it);
-  console.log("parseSavedVarFromFile",varObj)
+  //console.log("parseSavedVarFromFile",varObj)
   if (!varObj) return false;
   
   let resObj = {name: varObj.key};
