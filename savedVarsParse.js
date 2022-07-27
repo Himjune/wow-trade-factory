@@ -4,7 +4,8 @@ const fs = require('fs');
 const readline = require('readline');
 
 async function parseLuaFileLine(it) {
-  let lineObj = await it.next(); // ToDo: Should handle empty lines
+  let lineObj = await it.next();
+  while (lineObj.value === "" && !lineObj.done) lineObj = await it.next(); 
   if (lineObj.done) return false;
 
   let luaObject = {};  
