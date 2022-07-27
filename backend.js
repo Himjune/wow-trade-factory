@@ -23,7 +23,7 @@ async function parseLuaFileLine(it) {
 
 function tryParseNum(val) {
   let parse = parseFloat(val);
-  if (isNaN(parse)) return parse;
+  if (!isNaN(parse)) return parse;
   else return val;
 }
 
