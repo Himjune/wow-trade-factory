@@ -149,6 +149,7 @@ function trackMail(mailIndex)
 
     local packageIcon, stationeryIcon, sender, subject, money, CODAmount, daysLeft, hasItem, wasRead, wasReturned, textCreated, canReply, isGM = GetInboxHeaderInfo(mailIndex);
     local invoiceType, itemName, playerName, bid, buyout, deposit, consignment = GetInboxInvoiceInfo(mailIndex);
+    local bodyText, stationaryMiddle, stationaryEdge, isTakeable, isInvoice = GetInboxText(mailIndex);
 
     local mailUuid = uuid();
     local proto = {}
@@ -164,6 +165,7 @@ function trackMail(mailIndex)
 
     proto['sender'] = sender;
     proto['subject'] = subject;
+    proto['bodyText'] = bodyText;
     proto['money'] = money;
     proto['hasItem'] = hasItem;
 
