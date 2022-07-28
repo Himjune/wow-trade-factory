@@ -1,6 +1,21 @@
 wtfacLastScan = 0;
 wtfacAucDump = {}  -- default value until ADDON_LOADED
+wtfacMailTrack = {}
+
 CONST_QUERY_DELAY = 0.5;
+                -- d*h*m*s
+CONST_MAIL_SAVE = 3*24*60*60;
+
+
+local random = math.random
+local function uuid()
+    local template ='xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
+    return string.gsub(template, '[xy]', function (c)
+        local v = (c == 'x') and random(0, 0xf) or random(8, 0xb)
+        return string.format('%x', v)
+    end)
+end
+
 
 local wtfacTrackedItems = {
     'Блестящее масло маны',
@@ -125,9 +140,57 @@ SlashCmdList["WTFAC"] = function(msg)
     end
 end
 
+function trackMail(mailIndex)
+    if not (wtfacMailTrack and wtfacMailTrack['startTs'] and ((time()-CONST_MAIL_SAVE) < wtfacMailTrack['startTs'])) then
+        wtfacMailTrack = {};
+        wtfacMailTrack['startTs'] = time();
+        wtfacMailTrack['mails'] = {};
+    end
+
+    local packageIcon, stationeryIcon, sender, subject, money, CODAmount, daysLeft, hasItem, wasRead, wasReturned, textCreated, canReply, isGM = GetInboxHeaderInfo(mailIndex);
+    local invoiceType, itemName, playerName, bid, buyout, deposit, consignment = GetInboxInvoiceInfo(mailIndex);
+
+    local mailUuid = uuid();
+    local proto = {}
+
+    if wtfacMailTrack['mails'][mailUuid] then
+        proto['uuidRewrite'] = true;
+        print("MAIL UUID REUSE HAPPENED!");
+    end
+
+    proto['ts'] = GetTime();
+    proto['uuid'] = mailUuid;
+    proto['player'] = UnitName("player");
+
+    proto['sender'] = sender;
+    proto['subject'] = subject;
+    proto['money'] = money;
+    proto['hasItem'] = hasItem;
+
+    -- probably mongodb better have same structure
+    proto['invoiceType'] = invoiceType;
+
+    if invoiceType then
+        proto['itemName'] = itemName;
+
+        --print("Match");
+        --print(subject:match "%d+");
+        proto['amount'] = tonumber(subject:match "%d+");
+        if (proto['amount'] == nil) then proto['amount'] = 1; end
+
+        proto['buyout'] = buyout;
+        proto['deposit'] = deposit;
+        proto['consignment'] = consignment;
+    end
+
+    wtfacMailTrack['mails'][mailUuid] = proto;
+end
+
 local frame = CreateFrame("FRAME", "FooAddonFrame");
 frame:RegisterEvent("ADDON_LOADED");
 frame:RegisterEvent("AUCTION_ITEM_LIST_UPDATE");
+
+frame:RegisterEvent("CLOSE_INBOX_ITEM");
 
 
 local function eventHandler(event, ...)
@@ -145,6 +208,10 @@ local function eventHandler(event, ...)
         if scanItemIdx>0 then
             parseUpdatedPage();
         end
+    end
+
+    if event == "CLOSE_INBOX_ITEM" then 
+        trackMail(arg1);
     end
 end
 frame:SetScript("OnEvent", eventHandler);
