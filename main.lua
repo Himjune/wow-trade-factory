@@ -128,12 +128,13 @@ end
 local frame = CreateFrame("FRAME", "FooAddonFrame");
 frame:RegisterEvent("ADDON_LOADED");
 frame:RegisterEvent("AUCTION_ITEM_LIST_UPDATE");
-frame:RegisterEvent("AUCTION_BIDDER_LIST_UPDATE");
 
 
 local function eventHandler(event, ...)
     local event, arg1, arg2, arg3, arg4 = select(1,...);
-    -- print("WTFac event "..event);
+    local eventMsg = "e"..event;
+    if (arg1) then eventMsg = eventMsg .. " " .. arg1; end
+    --print(eventMsg);
 
     if event == "ADDON_LOADED" and arg1 == "WowTradeFactory" then
         print("WTFac loaded");
