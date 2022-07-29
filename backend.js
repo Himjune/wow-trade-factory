@@ -5,6 +5,20 @@ const port = 3000
 
 const saved_vars_parse = require('./savedVarsParse');
 
+var MongoClient = require('mongodb').MongoClient;
+var dbo = false;
+const dbUrl = "mongodb://localhost:27017/wtfacdb";
+
+MongoClient.connect(dbUrl, function(err, db) {
+  if (err) throw err;
+  dbo = db.db("wtfacdb");
+  /*dbo.collection("mails").insertOne(myobj, function(err, res) {
+    if (err) throw err;
+    console.log("1 document inserted");
+    db.close();
+  });*/
+});
+
 const wow_path = "C:\\Program Files (x86)\\World of Warcraft\\_classic_";
 const horde_acc = "101624645#1";
 
