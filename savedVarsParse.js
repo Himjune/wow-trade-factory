@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const readline = require('readline');
+const { isStringObject } = require('util/types');
 
 async function parseLuaFileLine(it) {
   let lineObj = await it.next();
@@ -12,11 +13,12 @@ async function parseLuaFileLine(it) {
 
   // ToDo: should handle ',' at the end of a line
   let line = lineObj.value
-            .replace(/\t,\[\]]+/gm, "")
+            .replace(/[\t,\[\]]+/gm, "")
             .trim();
-  //console.log("|"+line+"|");
+  console.log("|"+line+"|");
   
   let kv = line.split(" = ");
+  console.log("|",kv,"|");
   let commentSplit = kv[0].split(" -- ");
 
   if (commentSplit.length > 1)
@@ -24,10 +26,14 @@ async function parseLuaFileLine(it) {
   else 
     luaObject = {key: kv[0].replace(/\"/gm, ""), val: tryParseNum(kv[1])}
 
+  //console.log( "|lineObj|", lineObj.value, "|line|", line, "|kv|", kv, "|luaObj|", luaObject)
+  console.log("|",luaObject,"|\n\n");
   return luaObject;
 }
 
 function tryParseNum(val) {
+  if (val && val[0] == '"') return val.replace(/\"/gm, "");
+  
   let parse = parseFloat(val);
   if (!isNaN(parse)) return parse;
   else return val;

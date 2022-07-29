@@ -24,10 +24,10 @@ function checkFileModified(path) {
   });
 }
 
-async function tryParseFile(path) {
+async function tryParseFile(path, isForce = false) {
   let isFileModified = await checkFileModified(path);
 
-  if (isFileModified) {
+  if (isFileModified || isForce) {
     dbo.collection("stats").updateOne(
       { type: "svfLastModified", path: path },
       { $set: { value: fs.statSync(path).mtimeMs } },
@@ -50,7 +50,7 @@ function handleNewParse(newParse) {
   if (newParse && newParse.wtfacMailTrack) parseMail(newParse.wtfacMailTrack);
 }
 
-exports.updateInfoFromSavedVars = async () => {
-  tryParseFile(wow_path + "\\WTF\\Account\\" + horde_acc + "\\SavedVariables\\WowTradeFactory.lua");
+exports.updateInfoFromSavedVars = async (isForce) => {
+  tryParseFile(wow_path + "\\WTF\\Account\\" + horde_acc + "\\SavedVariables\\WowTradeFactory.lua", isForce);
 
 }

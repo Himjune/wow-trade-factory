@@ -12,11 +12,12 @@ require('./database.js').get_dbo.then((resolve) => {
   dbo = resolve;
 });
 
-setInterval(() => { files.updateInfoFromSavedVars(); }, 1500);
+setInterval(() => { files.updateInfoFromSavedVars(false); }, 1500);
 
-app.get('/', (req, res) => {
+app.get('/force_parse', (req, res) => {
   (async () => {
-    res.send(JSON.stringify(savedVars));
+    files.updateInfoFromSavedVars(true);
+    res.send("Forced");
   })();
 })
 
