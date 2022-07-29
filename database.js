@@ -12,11 +12,11 @@ exports.get_dbo = new Promise((resolve, reject) => {
         dbo.createCollection("stats", function(err, res) {
             if (err) console.log("stats Collection err! "+err);
             else console.log("stats Collection created!");
-            
-            /*dbo.collection("stats").insertOne({_id: "svLastModified", value: 0}, function(err, res) {
-            if (err) console.log("svLastModified default err! "+err);
-            else console.log("svLastModified default inserted");
-            });*/
+        });
+
+        dbo.createCollection("mails", function(err, res) {
+            if (err) console.log("mails Collection err! "+err);
+            else console.log("mails Collection created!");
         });
 
         resolve(dbo);

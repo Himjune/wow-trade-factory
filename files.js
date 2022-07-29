@@ -1,14 +1,17 @@
 const fs = require('fs');
-const saved_vars_parse = require('./savedVarsParse');
-
-const wow_path = "C:\\Program Files (x86)\\World of Warcraft\\_classic_";
-const horde_acc = "101624645#1";
 
 var MongoClient = require('mongodb').MongoClient;
 var dbo = null;
 require('./database.js').get_dbo.then((resolve) => {
   dbo = resolve;
 });
+
+const saved_vars_parse = require('./savedVarsParse');
+const parseMail = require('./mail').parseMail;
+
+
+const wow_path = "C:\\Program Files (x86)\\World of Warcraft\\_classic_";
+const horde_acc = "101624645#1";
 
 function checkFileModified(path) {
   return new Promise((resolve,reject)=> {
@@ -29,11 +32,11 @@ async function tryParseFile(path) {
       { type: "svfLastModified", path: path },
       { $set: { value: fs.statSync(path).mtimeMs } },
       { upsert: true },
-      function(err, result) {
+      async function(err, result) {
         if (err) throw err;
         console.log('Upsert svfLastModified', result);
 
-        let newParse = saved_vars_parse.parseSavedVarsFile(path);
+        let newParse = await saved_vars_parse.parseSavedVarsFile(path);
         handleNewParse(newParse);
       } 
     );
@@ -43,7 +46,8 @@ async function tryParseFile(path) {
 }
 
 function handleNewParse(newParse) {
-
+  console.log('handleNewParse', newParse);
+  if (newParse && newParse.wtfacMailTrack) parseMail(newParse.wtfacMailTrack);
 }
 
 exports.updateInfoFromSavedVars = async () => {

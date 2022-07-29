@@ -3,8 +3,8 @@ wtfacAucDump = {}  -- default value until ADDON_LOADED
 wtfacMailTrack = {}
 
 CONST_QUERY_DELAY = 0.5;
-                -- d*h*m*s
-CONST_MAIL_SAVE = 3*24*60*60;
+                -- d*h*m*s      
+CONST_MAIL_SAVE = 2*24*60*60;
 
 
 local random = math.random
@@ -160,7 +160,7 @@ function trackMail(mailIndex)
     end
 
     proto['ts'] = GetTime();
-    proto['uuid'] = mailUuid;
+    proto['_id'] = mailUuid;
     proto['player'] = UnitName("player");
 
     proto['sender'] = sender;
