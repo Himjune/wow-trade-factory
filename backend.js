@@ -8,15 +8,26 @@ const saved_vars_parse = require('./savedVarsParse');
 var MongoClient = require('mongodb').MongoClient;
 var dbo = false;
 const dbUrl = "mongodb://localhost:27017/wtfacdb";
+var MongoClient = require('mongodb').MongoClient;
 
 MongoClient.connect(dbUrl, function(err, db) {
-  if (err) throw err;
+  if (err) throw err;  
   dbo = db.db("wtfacdb");
-  /*dbo.collection("mails").insertOne(myobj, function(err, res) {
-    if (err) throw err;
-    console.log("1 document inserted");
-    db.close();
-  });*/
+  console.log("wtfacdb Database created(connected)!");
+
+  dbo.createCollection("stats", function(err, res) {
+    if (err) console.log("stats Collection err! "+err);
+    else console.log("stats Collection created!");
+    
+    dbo.collection("stats").insertOne({_id: "svLastModified", value: 0}, function(err, res) {
+      if (err) console.log("svLastModified default err! "+err);
+      else console.log("svLastModified default inserted");
+    });
+
+  });
+
+
+  
 });
 
 const wow_path = "C:\\Program Files (x86)\\World of Warcraft\\_classic_";
