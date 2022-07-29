@@ -90,7 +90,6 @@ exports.parseSavedVarsFile = async (path) => {
     if (!parsedVar) break;
     parsedVars[parsedVar.name] = parsedVar.value;
   } while (parsedVar);
-
-  console.log("R", parsedVars);
+  
   return parsedVars;
 }
