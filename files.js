@@ -26,7 +26,7 @@ function checkFileModified(path) {
 
 async function tryParseFile(path, isForce = false) {
   let isFileModified = await checkFileModified(path);
-  console.log('tryParseFile', isFileModified, isForce);
+  //console.log('tryParseFile', isFileModified, isForce);
 
   if (isFileModified || isForce) {
     dbo.collection("stats").updateOne(

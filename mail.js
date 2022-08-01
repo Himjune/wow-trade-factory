@@ -6,10 +6,19 @@ require('./database.js').get_dbo.then((resolve) => {
   dbo = resolve;
 });
 
-const trackedAuctions = ["Аукционный дом Орды", "Аукционный дом Альянса"];
+const addResource = require('./resource').addResource;
+
+const hordeAuctions = ["Аукционный дом Орды"];
+const alianceAuctions = ["Аукционный дом Альянса"]
 
 function handleAuctionLetter(mailObj) {
+    let faction = "horde";
+    if (alianceAuctions.includes(mailObj.sender)) faction = "aliance";
     
+    if (mailObj.invoiceType == "buyer") {
+        addResource(mailObj.itemName, mailObj.buyout, mailObj.amount, mailObj.crealm,
+            [{ type: "auction", info: mailObj.sender }]);
+    }
 }
 
 exports.parseMail = (wtfacMailTrack) => {
@@ -22,7 +31,7 @@ exports.parseMail = (wtfacMailTrack) => {
             if (err) dup++;
             else {
                 crt++;
-                if (mailObj.invoiceType && trackedAuctions.includes(mailObj.sender)) {
+                if (mailObj.invoiceType && (hordeAuctions.includes(mailObj.sender) || alianceAuctions.includes(mailObj.sender))) {
                     handleAuctionLetter(mailObj);
                 }
             }
