@@ -26,6 +26,7 @@ function checkFileModified(path) {
 
 async function tryParseFile(path, isForce = false) {
   let isFileModified = await checkFileModified(path);
+  console.log('tryParseFile', isFileModified, isForce);
 
   if (isFileModified || isForce) {
     dbo.collection("stats").updateOne(
@@ -42,11 +43,11 @@ async function tryParseFile(path, isForce = false) {
     );
   }
 
-  return saved_vars_parse.parseSavedVarsFile(path);
+  return isFileModified || isForce;
 }
 
 function handleNewParse(newParse) {
-  console.log('handleNewParse', newParse);
+  //console.log('handleNewParse', newParse);
   if (newParse && newParse.wtfacMailTrack) parseMail(newParse.wtfacMailTrack);
 }
 

@@ -1,84 +1,71 @@
-
-
+const { Console } = require('console');
 const fs = require('fs');
 const readline = require('readline');
 const { isStringObject } = require('util/types');
 
+function parseFormKey(str) {
+  return str.replace(/"/g, "");
+}
+
+function parseFormVal(str) {
+  if (str && str[0] == '"') return str.replace(/"/g, "");
+  
+  let parse = parseFloat(str);
+  if (!isNaN(parse)) {
+    return parse;
+  }
+  else return str;  
+}
+
 async function parseLuaFileLine(it) {
   let lineObj = await it.next();
   while (lineObj.value === "" && !lineObj.done) lineObj = await it.next(); 
-  if (lineObj.done) return false;
+  if (lineObj.done || lineObj.value.indexOf('}')>=0) return false;
 
   let luaObject = {};  
 
-  // ToDo: should handle ',' at the end of a line
   let line = lineObj.value
-            .replace(/[\t,\[\]]+/gm, "")
+            .replace(/[\t\[\]\,]/g, "")
             .trim();
-  console.log("|"+line+"|");
-  
-  let kv = line.split(" = ");
-  console.log("|",kv,"|");
-  let commentSplit = kv[0].split(" -- ");
+  let сsplit = line.split(" -- ");
 
-  if (commentSplit.length > 1)
-    luaObject = {key: commentSplit[1], val: tryParseNum(commentSplit[0])}
-  else 
-    luaObject = {key: kv[0].replace(/\"/gm, ""), val: tryParseNum(kv[1])}
-
-  //console.log( "|lineObj|", lineObj.value, "|line|", line, "|kv|", kv, "|luaObj|", luaObject)
-  console.log("|",luaObject,"|\n\n");
-  return luaObject;
-}
-
-function tryParseNum(val) {
-  if (val && val[0] == '"') return val.replace(/\"/gm, "");
-  
-  let parse = parseFloat(val);
-  if (!isNaN(parse)) return parse;
-  else return val;
-}
-
-async function parseObjLine(it) {
-  let varObj = await parseLuaFileLine(it);
-  if (!varObj || varObj.key == '}') return false;
-
-  varObj.isValObj = (varObj.val == "{");
-  
-  if (!varObj.isValObj) {
-    varObj.val = tryParseNum(varObj.val);
+  if (сsplit[1]) {
+    luaObject = { key: сsplit[1], val: parseFormVal(сsplit[0]) };
+  } else {
+    let kvsplit = сsplit[0].split(" = ");
+    luaObject = { key: parseFormKey(kvsplit[0]), val: parseFormVal(kvsplit[1]) };
   }
 
-  return varObj;
+  return luaObject;
 }
 
 async function parseObjectContents(it) {
   let contents = {}
-  let varObj = await parseObjLine(it);
+  let varObj = await parseLuaFileLine(it);
+
   while (varObj) {
-    //console.log("parseSavedVarFromFile", varObj)
-    if (varObj.isValObj) varObj.val = await parseObjectContents(it);
+    if (varObj.val === '{') varObj.val = await parseObjectContents(it);
     contents[varObj.key] = varObj.val;
 
-    varObj = await parseObjLine(it);
+    varObj = await parseLuaFileLine(it);
   }
 
   return contents;
 }
 
 async function parseSavedVarFromFile(it) {
-  let varObj = await parseObjLine(it);
-  //console.log("parseSavedVarFromFile",varObj)
+  let varObj = await parseLuaFileLine(it);
   if (!varObj) return false;
   
   let resObj = {name: varObj.key};
-  if (varObj.isValObj) resObj.value = await parseObjectContents(it);
-  else resObj.value = resObj.val;
+  if (varObj.val === '{') resObj.value = await parseObjectContents(it);
+  else resObj.value = varObj.val;
 
   return resObj;
 }
 
 exports.parseSavedVarsFile = async (path) => {
+  console.log("parseSavedVarsFile", path)
   const fileStream = fs.createReadStream(path);
 
   const rl = readline.createInterface({
@@ -89,7 +76,6 @@ exports.parseSavedVarsFile = async (path) => {
   const parsedVars = {};
 
   const it = rl[Symbol.asyncIterator]();
-  //const line1 = await it.next();
   let parsedVar = {};
   do {
     parsedVar = await parseSavedVarFromFile(it);
