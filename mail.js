@@ -14,7 +14,7 @@ function handleAuctionLetter(mailObj) {
 
 exports.parseMail = (wtfacMailTrack) => {
     let mailIds = Object.keys(wtfacMailTrack.mails);
-    let dup, crt = 0;
+    let dup = 0, crt = 0;
 
     mailIds.forEach(mailId => {
         let mailObj = wtfacMailTrack.mails[mailId];

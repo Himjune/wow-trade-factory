@@ -6,6 +6,8 @@ CONST_QUERY_DELAY = 0.5;
                 -- d*h*m*s      
 CONST_MAIL_SAVE = 2*24*60*60;
 
+local curRealm = "";
+local curPlayer = "";
 
 local random = math.random
 local function uuid()
@@ -99,6 +101,8 @@ function queryItemScan()
 
         if scanItemPage == 0 then
             wtfacAucDump[itemName] = {};
+            wtfacAucDump[itemName]["realm"] = curRealm;
+            wtfacAucDump[itemName]["player"] = curPlayer;
             wtfacAucDump[itemName]["priceCounters"] = {};
             wtfacAucDump[itemName]["lots"] = {};
             wtfacAucDump[itemName]["control"] = 0;
@@ -161,7 +165,10 @@ function trackMail(mailIndex)
 
     proto['ts'] = time();
     proto['_id'] = mailUuid;
-    proto['player'] = UnitName("player");
+    proto['player'] = playerName;
+    
+    proto['cplayer'] = curPlayer;
+    proto['crealm'] = curRealm;
 
     proto['sender'] = sender;
     proto['subject'] = subject;
@@ -203,6 +210,8 @@ local function eventHandler(event, ...)
 
     if event == "ADDON_LOADED" and arg1 == "WowTradeFactory" then
         print("WTFac loaded");
+        curRealm = GetRealmName();
+        curPlayer = UnitName("player");
     end
 
     if event == "AUCTION_ITEM_LIST_UPDATE" then
