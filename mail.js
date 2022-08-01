@@ -6,6 +6,12 @@ require('./database.js').get_dbo.then((resolve) => {
   dbo = resolve;
 });
 
+const trackedAuctions = ["Аукционный дом Орды", "Аукционный дом Альянса"];
+
+function handleAuctionLetter(mailObj) {
+    
+}
+
 exports.parseMail = (wtfacMailTrack) => {
     let mailIds = Object.keys(wtfacMailTrack.mails);
     let dup, crt = 0;
@@ -16,9 +22,12 @@ exports.parseMail = (wtfacMailTrack) => {
             if (err) dup++;
             else {
                 crt++;
+                if (mailObj.invoiceType && trackedAuctions.includes(mailObj.sender)) {
+                    handleAuctionLetter(mailObj);
+                }
             }
         });
     });
 
-    console.log('Mail parsed (C/D):', crt, dup);
+    console.log('Mail parsed (C/D/A):', crt, dup, crt+dup);
 }
