@@ -159,7 +159,7 @@ function trackMail(mailIndex)
         print("MAIL UUID REUSE HAPPENED!");
     end
 
-    proto['ts'] = GetTime();
+    proto['ts'] = time();
     proto['_id'] = mailUuid;
     proto['player'] = UnitName("player");
 
