@@ -8,14 +8,17 @@ require('./database.js').get_dbo.then((resolve) => {
 
 exports.parseMail = (wtfacMailTrack) => {
     let mailIds = Object.keys(wtfacMailTrack.mails);
+    let dup, crt = 0;
 
     mailIds.forEach(mailId => {
         let mailObj = wtfacMailTrack.mails[mailId];
         dbo.collection("mails").insertOne(mailObj, function(err, res) {
-            if (err) console.log('mail duplicate ' + mailId);
+            if (err) dup++;
             else {
-                console.log('mail saved ', mailId, mailObj);
+                crt++;
             }
         });
     });
+
+    console.log('Mail parsed (C/D):', crt, dup);
 }
