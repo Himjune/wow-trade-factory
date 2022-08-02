@@ -4,7 +4,7 @@ wtfacMailTrack = {}
 
 CONST_QUERY_DELAY = 0.5;
                 -- d*h*m*s      
-CONST_MAIL_SAVE = 2*24*60*60;
+CONST_DATA_SAVE = 1*24*60*60;
 
 local curRealm = "";
 local curPlayer = "";
