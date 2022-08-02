@@ -3,7 +3,7 @@ var MongoClient = require('mongodb').MongoClient;
 
 var dbo = null;
 require('./database.js').get_dbo.then((resolve) => {
-  dbo = resolve;
+    dbo = resolve;
 });
 
 const addResource = require('./resource').addResource;
@@ -11,32 +11,40 @@ const addResource = require('./resource').addResource;
 const hordeAuctions = ["Аукционный дом Орды"];
 const alianceAuctions = ["Аукционный дом Альянса"]
 
-function handleAuctionLetter(mailObj) {
+async function handleAuctionLetter(mailObj) {
     let faction = "horde";
     if (alianceAuctions.includes(mailObj.sender)) faction = "aliance";
-    
+
+    let isNewResource = false;
     if (mailObj.invoiceType == "buyer") {
-        addResource(mailObj.itemName, mailObj.buyout, mailObj.amount, mailObj.crealm,
+        isNewResource = await addResource(mailObj.itemName, mailObj.buyout, mailObj.amount, mailObj.crealm,
             [{ type: "auction", info: mailObj.sender }]);
     }
+
+    return isNewResource;
 }
 
-exports.parseMail = (wtfacMailTrack) => {
+exports.parseMail = async (wtfacMailTrack) => {
     let mailIds = Object.keys(wtfacMailTrack.mails);
     let dup = 0, crt = 0;
 
-    mailIds.forEach(mailId => {
+    let idx = 0;
+    while (idx < mailIds.length) {
+        const mailId = mailIds[idx];
         let mailObj = wtfacMailTrack.mails[mailId];
-        dbo.collection("mails").insertOne(mailObj, function(err, res) {
-            if (err) dup++;
-            else {
-                crt++;
-                if (mailObj.invoiceType && (hordeAuctions.includes(mailObj.sender) || alianceAuctions.includes(mailObj.sender))) {
-                    handleAuctionLetter(mailObj);
-                }
+        let insRes = false;
+        try {
+            insRes = await dbo.collection("mails").insertOne(mailObj);
+            crt++;
+            if (mailObj.invoiceType && (hordeAuctions.includes(mailObj.sender) || alianceAuctions.includes(mailObj.sender))) {
+                await handleAuctionLetter(mailObj);
             }
-        });
-    });
+        } catch (error) {
+            dup++;
+        }
 
-    console.log('Mail parsed (C/D/A):', crt, dup, crt+dup);
+        idx++;
+    };
+
+    console.log('Mail parsed (C/D/A):', crt, dup, crt + dup);
 }
