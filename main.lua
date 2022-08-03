@@ -35,6 +35,7 @@ function scanPreActions()
     end
 end
 
+local CONST_RIM_PERCENT = (20) /100+1;
 function parseUpdatedPage() 
     batch,count = GetNumAuctionItems("list");
     print(batch,count);
@@ -49,8 +50,8 @@ function parseUpdatedPage()
             ownerFullName, saleStatus, itemId, hasAllInfo = GetAuctionItemInfo("list", itemIndex);
             -- print(name.."("..count..") for "..buyoutPrice);
 
-            local singlePrice = math.floor(buyoutPrice/count);
-            local meaningfulPrice = math.floor(singlePrice/100)/100;
+            local singlePrice = math.floor(buyoutPrice/count); -- one item price in ggsscc format
+            local meaningfulPrice = math.floor((singlePrice+900)/1000)/10; -- floor((+900)/1000) rounds it up by 01s to ggs(drops scc) and /10 makes it gg.s format
 
             if buyoutPrice > 0 then
                 
@@ -60,19 +61,30 @@ function parseUpdatedPage()
                     wtfacAucDump[itemName]["priceCounters"][meaningfulPrice] = count;
                 end
 
-                wtfacAucDump[itemName]["buyable"] = wtfacAucDump[itemName]["buyable"] + count;
+                if (singlePrice < wtfacAucDump[itemName]["stats"]["absMin"]) then
+                    wtfacAucDump[itemName]["stats"]["absMin"] = singlePrice;
+                    wtfacAucDump[itemName]["stats"]["centRim"] = (wtfacAucDump[itemName]["stats"]["centRim"]*wtfacAucDump[itemName]["stats"]["centRimCnt"]+singlePrice*CONST_RIM_PERCENT)/(wtfacAucDump[itemName]["stats"]["centRimCnt"]+1);
+                    wtfacAucDump[itemName]["stats"]["centRimCnt"] = wtfacAucDump[itemName]["stats"]["centRimCnt"]+1;
+                end
+
+                wtfacAucDump[itemName]["stats"]["absAvg"] = (wtfacAucDump[itemName]["stats"]["absAvg"]*wtfacAucDump[itemName]["stats"]["absCnt"]+buyoutPrice)/(wtfacAucDump[itemName]["stats"]["absCnt"] + count);
+                wtfacAucDump[itemName]["stats"]["absCnt"] = wtfacAucDump[itemName]["stats"]["absCnt"] + count;
+            
+                if (singlePrice <= wtfacAucDump[itemName]["stats"]["centRim"]) then
+                    wtfacAucDump[itemName]["stats"]["centAvg"] = (wtfacAucDump[itemName]["stats"]["centAvg"]*wtfacAucDump[itemName]["stats"]["centCnt"]+buyoutPrice)/(wtfacAucDump[itemName]["stats"]["centCnt"] + count);
+                    wtfacAucDump[itemName]["stats"]["centCnt"] = wtfacAucDump[itemName]["stats"]["centCnt"] + count;
+                end
     
-                --wtfacAucDump[itemName]["lots"][itemIndex+50*(scanItemPage)] = {};
-                --wtfacAucDump[itemName]["lots"][itemIndex+50*(scanItemPage)]["count"] = count;
-                --wtfacAucDump[itemName]["lots"][itemIndex+50*(scanItemPage)]["buyoutPrice"] = buyoutPrice;
-                --wtfacAucDump[itemName]["lots"][itemIndex+50*(scanItemPage)]["singlePrice"] = singlePrice;
-                --wtfacAucDump[itemName]["lots"][itemIndex+50*(scanItemPage)]["meaningfulPrice"] = meaningfulPrice;
+                -- wtfacAucDump[itemName]["lots"][itemIndex+50*(scanItemPage)] = {};
+                -- wtfacAucDump[itemName]["lots"][itemIndex+50*(scanItemPage)]["count"] = count;
+                -- wtfacAucDump[itemName]["lots"][itemIndex+50*(scanItemPage)]["buyoutPrice"] = buyoutPrice;
+                -- wtfacAucDump[itemName]["lots"][itemIndex+50*(scanItemPage)]["singlePrice"] = singlePrice;
+                -- wtfacAucDump[itemName]["lots"][itemIndex+50*(scanItemPage)]["meaningfulPrice"] = meaningfulPrice;
+                -- wtfacAucDump[itemName]["lots"][itemIndex+50*(scanItemPage)]["priceRUp"] = priceRUp;
+                -- wtfacAucDump[itemName]["lots"][itemIndex+50*(scanItemPage)]["goldPrice"] = goldPrice;
             else
                 print("NonB"..name..buyoutPrice)
             end
-
-            wtfacAucDump[itemName]["control"] = wtfacAucDump[itemName]["control"] + 1;
-            wtfacAucDump[itemName]["all"] = wtfacAucDump[itemName]["all"] + count;
         end
     end
 
@@ -104,7 +116,19 @@ function queryItemScan()
             wtfacAucDump[itemName]["realm"] = curRealm;
             wtfacAucDump[itemName]["player"] = curPlayer;
             wtfacAucDump[itemName]["priceCounters"] = {};
-            wtfacAucDump[itemName]["lots"] = {};
+            
+            wtfacAucDump[itemName]["stats"] = {};
+            wtfacAucDump[itemName]["stats"]["absCnt"] = 0;
+            wtfacAucDump[itemName]["stats"]["absAvg"] = 0;
+            wtfacAucDump[itemName]["stats"]["absMin"] = 9999999;
+
+            wtfacAucDump[itemName]["stats"]["centCnt"] = 0;
+            wtfacAucDump[itemName]["stats"]["centAvg"] = 0;
+
+            wtfacAucDump[itemName]["stats"]["centRim"] = 0;
+            wtfacAucDump[itemName]["stats"]["centRimCnt"] = 0;
+
+            --  wtfacAucDump[itemName]["lots"] = {};
             wtfacAucDump[itemName]["control"] = 0;
             wtfacAucDump[itemName]["buyable"] = 0;
             wtfacAucDump[itemName]["all"] = 0;
@@ -145,7 +169,7 @@ SlashCmdList["WTFAC"] = function(msg)
 end
 
 function trackMail(mailIndex)
-    if not (wtfacMailTrack and wtfacMailTrack['startTs'] and ((time()-CONST_MAIL_SAVE) < wtfacMailTrack['startTs'])) then
+    if not (wtfacMailTrack and wtfacMailTrack['startTs'] and ((time()-CONST_DATA_SAVE) < wtfacMailTrack['startTs'])) then
         wtfacMailTrack = {};
         wtfacMailTrack['startTs'] = time();
         wtfacMailTrack['mails'] = {};
