@@ -8,6 +8,7 @@ CONST_DATA_SAVE = 1*24*60*60;
 
 local curRealm = "";
 local curPlayer = "";
+local curFaction = "H";
 
 local random = math.random
 local function uuid()
@@ -55,10 +56,13 @@ function parseUpdatedPage()
 
             if buyoutPrice > 0 then
                 
-                if wtfacAucDump[itemName]["priceCounters"][meaningfulPrice] then
-                    wtfacAucDump[itemName]["priceCounters"][meaningfulPrice] = wtfacAucDump[itemName]["priceCounters"][meaningfulPrice] + count;
+                if wtfacAucDump[itemName]["priceCounters"][curFaction .. meaningfulPrice] then
+                    wtfacAucDump[itemName]["priceCounters"][curFaction .. meaningfulPrice]['count'] = wtfacAucDump[itemName]["priceCounters"][curFaction .. meaningfulPrice]['count'] + count;
                 else
-                    wtfacAucDump[itemName]["priceCounters"][meaningfulPrice] = count;
+                    wtfacAucDump[itemName]["priceCounters"][curFaction .. meaningfulPrice] = {};
+                    wtfacAucDump[itemName]["priceCounters"][curFaction .. meaningfulPrice]['price'] = meaningfulPrice;
+                    wtfacAucDump[itemName]["priceCounters"][curFaction .. meaningfulPrice]['count'] = count;
+                    wtfacAucDump[itemName]["priceCounters"][curFaction .. meaningfulPrice]['faction'] = curFaction;
                 end
 
                 if (singlePrice < wtfacAucDump[itemName]["stats"]["absMin"]) then
@@ -132,10 +136,10 @@ function queryItemScan()
             wtfacAucDump[itemName]["stats"]["centRim"] = 0;
             wtfacAucDump[itemName]["stats"]["centRimCnt"] = 0;
 
-            --  wtfacAucDump[itemName]["lots"] = {};
-            wtfacAucDump[itemName]["control"] = 0;
-            wtfacAucDump[itemName]["buyable"] = 0;
-            wtfacAucDump[itemName]["all"] = 0;
+            -- wtfacAucDump[itemName]["lots"] = {};
+            -- wtfacAucDump[itemName]["control"] = 0;
+            -- wtfacAucDump[itemName]["buyable"] = 0;
+            -- wtfacAucDump[itemName]["all"] = 0;
         end
 
         --print("Query "..wtfacTrackedItems[scanItemIdx].."("..scanItemPage..")");
@@ -240,6 +244,7 @@ local function eventHandler(event, ...)
         print("WTFac loaded");
         curRealm = GetRealmName();
         curPlayer = UnitName("player");
+        if curPlayer == "Элвенстин" then curFaction = "A" end;
     end
 
     if event == "AUCTION_ITEM_LIST_UPDATE" then
