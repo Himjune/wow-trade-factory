@@ -66,22 +66,29 @@ async function parseSavedVarFromFile(it) {
 
 exports.parseSavedVarsFile = async (path) => {
   console.log("parseSavedVarsFile", path)
-  const fileStream = fs.createReadStream(path);
-
-  const rl = readline.createInterface({
-    input: fileStream,
-    crlfDelay: Infinity
-  });
-
-  const parsedVars = {};
-
-  const it = rl[Symbol.asyncIterator]();
-  let parsedVar = {};
-  do {
-    parsedVar = await parseSavedVarFromFile(it);
-    if (!parsedVar) break;
-    parsedVars[parsedVar.name] = parsedVar.value;
-  } while (parsedVar);
-
-  return parsedVars;
+  try {
+    const fileStream = fs.createReadStream(path);
+  
+    const rl = readline.createInterface({
+      input: fileStream,
+      crlfDelay: Infinity
+    });
+  
+    const parsedVars = {};
+  
+    const it = rl[Symbol.asyncIterator]();
+    let parsedVar = {};
+    do {
+      parsedVar = await parseSavedVarFromFile(it);
+      if (!parsedVar) break;
+      parsedVars[parsedVar.name] = parsedVar.value;
+    } while (parsedVar);
+  
+    fileStream.destroy();
+    return parsedVars;
+  } catch (error) {
+    console.log("parseSavedVarsFile error", error);
+    fileStream.destroy();
+    return {};
+  }
 }

@@ -15,12 +15,17 @@ const horde_acc = "101624645#1";
 
 function checkFileModified(path) {
   return new Promise((resolve,reject)=> {
-    let fstat = fs.statSync(path);
-  
-    dbo.collection("stats").findOne( {type: "svfLastModified", path: path}, function(err, result) {
-      if (err) throw err;
-      resolve(!result || (result.value < fstat.mtimeMs));
-    });
+    try {
+      let fstat = fs.statSync(path);
+    
+      dbo.collection("stats").findOne( {type: "svfLastModified", path: path}, function(err, result) {
+        if (err) throw err;
+        resolve(!result || (result.value < fstat.mtimeMs));
+      });
+    } catch (error) {
+      console.log("checkFileModified error:", error);
+      resolve(false);
+    }
   });
 }
 
