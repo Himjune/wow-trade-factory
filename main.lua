@@ -63,15 +63,19 @@ function parseUpdatedPage()
 
                 if (singlePrice < wtfacAucDump[itemName]["stats"]["absMin"]) then
                     wtfacAucDump[itemName]["stats"]["absMin"] = singlePrice;
+
                     wtfacAucDump[itemName]["stats"]["centRim"] = (wtfacAucDump[itemName]["stats"]["centRim"]*wtfacAucDump[itemName]["stats"]["centRimCnt"]+singlePrice*CONST_RIM_PERCENT)/(wtfacAucDump[itemName]["stats"]["centRimCnt"]+1);
+                    wtfacAucDump[itemName]["stats"]["centRim"] = math.floor(wtfacAucDump[itemName]["stats"]["centRim"]);
                     wtfacAucDump[itemName]["stats"]["centRimCnt"] = wtfacAucDump[itemName]["stats"]["centRimCnt"]+1;
                 end
 
                 wtfacAucDump[itemName]["stats"]["absAvg"] = (wtfacAucDump[itemName]["stats"]["absAvg"]*wtfacAucDump[itemName]["stats"]["absCnt"]+buyoutPrice)/(wtfacAucDump[itemName]["stats"]["absCnt"] + count);
+                wtfacAucDump[itemName]["stats"]["absAvg"] = math.floor(wtfacAucDump[itemName]["stats"]["absAvg"]);
                 wtfacAucDump[itemName]["stats"]["absCnt"] = wtfacAucDump[itemName]["stats"]["absCnt"] + count;
             
                 if (singlePrice <= wtfacAucDump[itemName]["stats"]["centRim"]) then
                     wtfacAucDump[itemName]["stats"]["centAvg"] = (wtfacAucDump[itemName]["stats"]["centAvg"]*wtfacAucDump[itemName]["stats"]["centCnt"]+buyoutPrice)/(wtfacAucDump[itemName]["stats"]["centCnt"] + count);
+                    wtfacAucDump[itemName]["stats"]["centAvg"] = math.floor(wtfacAucDump[itemName]["stats"]["centAvg"])
                     wtfacAucDump[itemName]["stats"]["centCnt"] = wtfacAucDump[itemName]["stats"]["centCnt"] + count;
                 end
     
