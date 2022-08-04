@@ -8,6 +8,7 @@ require('./database.js').get_dbo.then((resolve) => {
 
 const saved_vars_parse = require('./savedVarsParse');
 const parseMail = require('./mail').parseMail;
+const parseAucDump = require('./aucDump').parseAucDump;
 
 
 const wow_path = "C:\\Program Files (x86)\\World of Warcraft\\_classic_";
@@ -54,6 +55,7 @@ async function tryParseFile(path, isForce = false) {
 function handleNewParse(newParse) {
   //console.log('handleNewParse', newParse);
   if (newParse && newParse.wtfacMailTrack) parseMail(newParse.wtfacMailTrack);
+  if (newParse && newParse.wtfacAucDump) parseAucDump(newParse.wtfacAucDump);
 }
 
 exports.updateInfoFromSavedVars = async (isForce) => {

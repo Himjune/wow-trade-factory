@@ -141,8 +141,8 @@ function queryItemScan()
             wtfacAucDump[itemId]["priceCounters"] = {};
             
             wtfacAucDump[itemId]["stats"] = {};
-            wtfacAucDump[itemId]["itemId"] = itemId;
-            wtfacAucDump[itemId]["itemName"] = itemName;
+            wtfacAucDump[itemId]["stats"]["itemId"] = itemId;
+            wtfacAucDump[itemId]["stats"]["itemName"] = itemName;
 
             wtfacAucDump[itemId]["stats"]['etf'] = math.floor(math.max(itemSellPrice, 500)*CONST_NEUTRAL_AUC_FEE); -- 5s as minimal transfer price 
             wtfacAucDump[itemId]["stats"]['faction'] = curFaction;  
