@@ -6,6 +6,8 @@ CONST_QUERY_DELAY = 0.5;
                 -- d*h*m*s      
 CONST_DATA_SAVE = 1*24*60*60;
 
+CONST_NEUTRAL_AUC_FEE = 0.15;
+
 local curRealm = "";
 local curPlayer = "";
 local curFaction = "H";
@@ -21,8 +23,9 @@ end
 
 
 local wtfacTrackedItems = {
-    14344, -- 'Большой сверкающий осколок'},
-    4625 -- 'Огнецвет'},
+    20749, -- Блестящее волшебное масло
+    14344, -- Большой сверкающий осколок
+    4625 -- Огнецвет
 };
 
 local scanItemIdx = 0; -- 0 indicates no search in progress
@@ -101,6 +104,10 @@ function parseUpdatedPage()
 
     if isLastPage then
         wtfacAucDump[itemId]["ts"] = time();
+
+        wtfacAucDump[itemId]["stats"]['ts'] = wtfacAucDump[itemId]["ts"];
+        wtfacAucDump[itemId]["stats"]['etf'] = math.floor(math.max(itemSellPrice, 500)*CONST_NEUTRAL_AUC_FEE); -- 5s as minimal transfer price       
+
         scanItemIdx = scanItemIdx + 1;
 
         if scanItemIdx > table.getn(wtfacTrackedItems) then
