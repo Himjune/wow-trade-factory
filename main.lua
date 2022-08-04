@@ -2,9 +2,9 @@ wtfacLastScan = 0;
 wtfacAucDump = {}  -- default value until ADDON_LOADED
 wtfacMailTrack = {}
 
-CONST_QUERY_DELAY = 0.5;
+CONST_QUERY_DELAY = 0.6;
                 -- d*h*m*s      
-CONST_DATA_SAVE = 1*24*60*60;
+CONST_DATA_SAVE = 2*24*60*60;
 
 CONST_NEUTRAL_AUC_FEE = 0.15;
 
