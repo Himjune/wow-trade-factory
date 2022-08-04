@@ -14,6 +14,8 @@ require('./database.js').get_dbo.then((resolve) => {
 
 const addResource = require('./resource').addResource;
 
+const getCrafts = require('./crafts').getCrafts;
+
 setInterval(() => { files.updateInfoFromSavedVars(false); }, 1500);
 
 app.get('/force_parse', (req, res) => {
