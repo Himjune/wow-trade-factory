@@ -71,7 +71,7 @@ function parseUpdatedPage()
                     wtfacAucDump[itemId]["priceCounters"][curFaction .. meaningfulPrice]['faction'] = curFaction;
                 end
 
-                if (singlePrice < wtfacAucDump[itemId]["stats"]["absMin"]) then
+                if (singlePrice < wtfacAucDump[itemId]["stats"]["absMin"] or wtfacAucDump[itemId]["stats"]["absCnt"] == 0) then
                     wtfacAucDump[itemId]["stats"]["absMin"] = singlePrice;
 
                     wtfacAucDump[itemId]["stats"]["centRim"] = (wtfacAucDump[itemId]["stats"]["centRim"]*wtfacAucDump[itemId]["stats"]["centRimCnt"]+singlePrice*CONST_RIM_PERCENT)/(wtfacAucDump[itemId]["stats"]["centRimCnt"]+1);
@@ -104,9 +104,9 @@ function parseUpdatedPage()
 
     if isLastPage then
         wtfacAucDump[itemId]["ts"] = time();
+        wtfacAucDump[itemId]['faction'] = curFaction;
 
-        wtfacAucDump[itemId]["stats"]['ts'] = wtfacAucDump[itemId]["ts"];
-        wtfacAucDump[itemId]["stats"]['etf'] = math.floor(math.max(itemSellPrice, 500)*CONST_NEUTRAL_AUC_FEE); -- 5s as minimal transfer price       
+        wtfacAucDump[itemId]["stats"]['ts'] = wtfacAucDump[itemId]["ts"];    
 
         scanItemIdx = scanItemIdx + 1;
 
@@ -128,7 +128,8 @@ end
 function queryItemScan()
     if scanItemIdx>0 and scanItemIdx <= table.getn(wtfacTrackedItems) then
         local itemId = wtfacTrackedItems[scanItemIdx];
-        local itemName = GetItemInfo(itemId);
+        local itemName, _, _, _, _, _, _, _, _, _, itemSellPrice = GetItemInfo(itemId);
+
         print("queryItemScan", itemId, itemName);
 
         if scanItemPage == 0 then
@@ -140,9 +141,15 @@ function queryItemScan()
             wtfacAucDump[itemId]["priceCounters"] = {};
             
             wtfacAucDump[itemId]["stats"] = {};
+            wtfacAucDump[itemId]["itemId"] = itemId;
+            wtfacAucDump[itemId]["itemName"] = itemName;
+
+            wtfacAucDump[itemId]["stats"]['etf'] = math.floor(math.max(itemSellPrice, 500)*CONST_NEUTRAL_AUC_FEE); -- 5s as minimal transfer price 
+            wtfacAucDump[itemId]["stats"]['faction'] = curFaction;  
+
             wtfacAucDump[itemId]["stats"]["absCnt"] = 0;
             wtfacAucDump[itemId]["stats"]["absAvg"] = 0;
-            wtfacAucDump[itemId]["stats"]["absMin"] = 9999999;
+            wtfacAucDump[itemId]["stats"]["absMin"] = 0;
 
             wtfacAucDump[itemId]["stats"]["centCnt"] = 0;
             wtfacAucDump[itemId]["stats"]["centAvg"] = 0;
