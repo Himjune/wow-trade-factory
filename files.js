@@ -13,6 +13,7 @@ const parseAucDump = require('./aucDump').parseAucDump;
 
 const wow_path = "C:\\Program Files (x86)\\World of Warcraft\\_classic_";
 const horde_acc = "101624645#1";
+const aliance_acc = "466411978#1";
 
 function checkFileModified(path) {
   return new Promise((resolve,reject)=> {
@@ -60,5 +61,5 @@ function handleNewParse(newParse) {
 
 exports.updateInfoFromSavedVars = async (isForce) => {
   tryParseFile(wow_path + "\\WTF\\Account\\" + horde_acc + "\\SavedVariables\\WowTradeFactory.lua", isForce);
-
+  tryParseFile(wow_path + "\\WTF\\Account\\" + aliance_acc + "\\SavedVariables\\WowTradeFactory.lua", isForce);
 }

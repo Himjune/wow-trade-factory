@@ -135,6 +135,7 @@ function queryItemScan()
         if scanItemPage == 0 then
             wtfacAucDump[itemId] = {};
             
+            wtfacAucDump[itemId]["itemId"] = itemId;
             wtfacAucDump[itemId]["itemName"] = itemName;
             wtfacAucDump[itemId]["realm"] = curRealm;
             wtfacAucDump[itemId]["player"] = curPlayer;
