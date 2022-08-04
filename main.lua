@@ -21,9 +21,8 @@ end
 
 
 local wtfacTrackedItems = {
-    'Блестящее масло маны',
-    'Большой сверкающий осколок',
-    'Огнецвет'
+    14344, -- 'Большой сверкающий осколок'},
+    4625 -- 'Огнецвет'},
 };
 
 local scanItemIdx = 0; -- 0 indicates no search in progress
@@ -37,59 +36,63 @@ function scanPreActions()
 end
 
 local CONST_RIM_PERCENT = (20) /100+1;
-function parseUpdatedPage() 
+function parseUpdatedPage()
+    if scanItemIdx < 1 then return; end
     batch,count = GetNumAuctionItems("list");
     print(batch,count);
 
     local isLastPage = (batch<50);
-    local itemName = wtfacTrackedItems[scanItemIdx];
+
+    local itemId = wtfacTrackedItems[scanItemIdx];
+    local itemName, _, _, _, _, _, _, _, _, _, itemSellPrice = GetItemInfo(itemId);
+    print("parseUpdatedPage", itemId, itemName);
 
     if batch > 0 then
         for itemIndex=1,batch do
             local name, texture, count, quality, canUse, level, levelColHeader, minBid,
             minIncrement, buyoutPrice, bidAmount, highBidder, bidderFullName, owner,
             ownerFullName, saleStatus, itemId, hasAllInfo = GetAuctionItemInfo("list", itemIndex);
-            -- print(name.."("..count..") for "..buyoutPrice);
+            -- print(name.."("..itemId..") for "..buyoutPrice);
 
             local singlePrice = math.floor(buyoutPrice/count); -- one item price in ggsscc format
             local meaningfulPrice = math.floor((singlePrice+900)/1000)/10; -- floor((+900)/1000) rounds it up by 01s to ggs(drops scc) and /10 makes it gg.s format
 
             if buyoutPrice > 0 then
                 
-                if wtfacAucDump[itemName]["priceCounters"][curFaction .. meaningfulPrice] then
-                    wtfacAucDump[itemName]["priceCounters"][curFaction .. meaningfulPrice]['count'] = wtfacAucDump[itemName]["priceCounters"][curFaction .. meaningfulPrice]['count'] + count;
+                if wtfacAucDump[itemId]["priceCounters"][curFaction .. meaningfulPrice] then
+                    wtfacAucDump[itemId]["priceCounters"][curFaction .. meaningfulPrice]['count'] = wtfacAucDump[itemId]["priceCounters"][curFaction .. meaningfulPrice]['count'] + count;
                 else
-                    wtfacAucDump[itemName]["priceCounters"][curFaction .. meaningfulPrice] = {};
-                    wtfacAucDump[itemName]["priceCounters"][curFaction .. meaningfulPrice]['price'] = meaningfulPrice;
-                    wtfacAucDump[itemName]["priceCounters"][curFaction .. meaningfulPrice]['count'] = count;
-                    wtfacAucDump[itemName]["priceCounters"][curFaction .. meaningfulPrice]['faction'] = curFaction;
+                    wtfacAucDump[itemId]["priceCounters"][curFaction .. meaningfulPrice] = {};
+                    wtfacAucDump[itemId]["priceCounters"][curFaction .. meaningfulPrice]['price'] = meaningfulPrice;
+                    wtfacAucDump[itemId]["priceCounters"][curFaction .. meaningfulPrice]['count'] = count;
+                    wtfacAucDump[itemId]["priceCounters"][curFaction .. meaningfulPrice]['faction'] = curFaction;
                 end
 
-                if (singlePrice < wtfacAucDump[itemName]["stats"]["absMin"]) then
-                    wtfacAucDump[itemName]["stats"]["absMin"] = singlePrice;
+                if (singlePrice < wtfacAucDump[itemId]["stats"]["absMin"]) then
+                    wtfacAucDump[itemId]["stats"]["absMin"] = singlePrice;
 
-                    wtfacAucDump[itemName]["stats"]["centRim"] = (wtfacAucDump[itemName]["stats"]["centRim"]*wtfacAucDump[itemName]["stats"]["centRimCnt"]+singlePrice*CONST_RIM_PERCENT)/(wtfacAucDump[itemName]["stats"]["centRimCnt"]+1);
-                    wtfacAucDump[itemName]["stats"]["centRim"] = math.floor(wtfacAucDump[itemName]["stats"]["centRim"]);
-                    wtfacAucDump[itemName]["stats"]["centRimCnt"] = wtfacAucDump[itemName]["stats"]["centRimCnt"]+1;
+                    wtfacAucDump[itemId]["stats"]["centRim"] = (wtfacAucDump[itemId]["stats"]["centRim"]*wtfacAucDump[itemId]["stats"]["centRimCnt"]+singlePrice*CONST_RIM_PERCENT)/(wtfacAucDump[itemId]["stats"]["centRimCnt"]+1);
+                    wtfacAucDump[itemId]["stats"]["centRim"] = math.floor(wtfacAucDump[itemId]["stats"]["centRim"]);
+                    wtfacAucDump[itemId]["stats"]["centRimCnt"] = wtfacAucDump[itemId]["stats"]["centRimCnt"]+1;
                 end
 
-                wtfacAucDump[itemName]["stats"]["absAvg"] = (wtfacAucDump[itemName]["stats"]["absAvg"]*wtfacAucDump[itemName]["stats"]["absCnt"]+buyoutPrice)/(wtfacAucDump[itemName]["stats"]["absCnt"] + count);
-                wtfacAucDump[itemName]["stats"]["absAvg"] = math.floor(wtfacAucDump[itemName]["stats"]["absAvg"]);
-                wtfacAucDump[itemName]["stats"]["absCnt"] = wtfacAucDump[itemName]["stats"]["absCnt"] + count;
+                wtfacAucDump[itemId]["stats"]["absAvg"] = (wtfacAucDump[itemId]["stats"]["absAvg"]*wtfacAucDump[itemId]["stats"]["absCnt"]+buyoutPrice)/(wtfacAucDump[itemId]["stats"]["absCnt"] + count);
+                wtfacAucDump[itemId]["stats"]["absAvg"] = math.floor(wtfacAucDump[itemId]["stats"]["absAvg"]);
+                wtfacAucDump[itemId]["stats"]["absCnt"] = wtfacAucDump[itemId]["stats"]["absCnt"] + count;
             
-                if (singlePrice <= wtfacAucDump[itemName]["stats"]["centRim"]) then
-                    wtfacAucDump[itemName]["stats"]["centAvg"] = (wtfacAucDump[itemName]["stats"]["centAvg"]*wtfacAucDump[itemName]["stats"]["centCnt"]+buyoutPrice)/(wtfacAucDump[itemName]["stats"]["centCnt"] + count);
-                    wtfacAucDump[itemName]["stats"]["centAvg"] = math.floor(wtfacAucDump[itemName]["stats"]["centAvg"])
-                    wtfacAucDump[itemName]["stats"]["centCnt"] = wtfacAucDump[itemName]["stats"]["centCnt"] + count;
+                if (singlePrice <= wtfacAucDump[itemId]["stats"]["centRim"]) then
+                    wtfacAucDump[itemId]["stats"]["centAvg"] = (wtfacAucDump[itemId]["stats"]["centAvg"]*wtfacAucDump[itemId]["stats"]["centCnt"]+buyoutPrice)/(wtfacAucDump[itemId]["stats"]["centCnt"] + count);
+                    wtfacAucDump[itemId]["stats"]["centAvg"] = math.floor(wtfacAucDump[itemId]["stats"]["centAvg"])
+                    wtfacAucDump[itemId]["stats"]["centCnt"] = wtfacAucDump[itemId]["stats"]["centCnt"] + count;
                 end
     
-                -- wtfacAucDump[itemName]["lots"][itemIndex+50*(scanItemPage)] = {};
-                -- wtfacAucDump[itemName]["lots"][itemIndex+50*(scanItemPage)]["count"] = count;
-                -- wtfacAucDump[itemName]["lots"][itemIndex+50*(scanItemPage)]["buyoutPrice"] = buyoutPrice;
-                -- wtfacAucDump[itemName]["lots"][itemIndex+50*(scanItemPage)]["singlePrice"] = singlePrice;
-                -- wtfacAucDump[itemName]["lots"][itemIndex+50*(scanItemPage)]["meaningfulPrice"] = meaningfulPrice;
-                -- wtfacAucDump[itemName]["lots"][itemIndex+50*(scanItemPage)]["priceRUp"] = priceRUp;
-                -- wtfacAucDump[itemName]["lots"][itemIndex+50*(scanItemPage)]["goldPrice"] = goldPrice;
+                -- wtfacAucDump[itemId]["lots"][itemIndex+50*(scanItemPage)] = {};
+                -- wtfacAucDump[itemId]["lots"][itemIndex+50*(scanItemPage)]["count"] = count;
+                -- wtfacAucDump[itemId]["lots"][itemIndex+50*(scanItemPage)]["buyoutPrice"] = buyoutPrice;
+                -- wtfacAucDump[itemId]["lots"][itemIndex+50*(scanItemPage)]["singlePrice"] = singlePrice;
+                -- wtfacAucDump[itemId]["lots"][itemIndex+50*(scanItemPage)]["meaningfulPrice"] = meaningfulPrice;
+                -- wtfacAucDump[itemId]["lots"][itemIndex+50*(scanItemPage)]["priceRUp"] = priceRUp;
+                -- wtfacAucDump[itemId]["lots"][itemIndex+50*(scanItemPage)]["goldPrice"] = goldPrice;
             else
                 print("NonB"..name..buyoutPrice)
             end
@@ -97,7 +100,7 @@ function parseUpdatedPage()
     end
 
     if isLastPage then
-        wtfacAucDump[itemName]["ts"] = time();
+        wtfacAucDump[itemId]["ts"] = time();
         scanItemIdx = scanItemIdx + 1;
 
         if scanItemIdx > table.getn(wtfacTrackedItems) then
@@ -117,24 +120,28 @@ end
 
 function queryItemScan()
     if scanItemIdx>0 and scanItemIdx <= table.getn(wtfacTrackedItems) then
-        local itemName = wtfacTrackedItems[scanItemIdx];
+        local itemId = wtfacTrackedItems[scanItemIdx];
+        local itemName = GetItemInfo(itemId);
+        print("queryItemScan", itemId, itemName);
 
         if scanItemPage == 0 then
-            wtfacAucDump[itemName] = {};
-            wtfacAucDump[itemName]["realm"] = curRealm;
-            wtfacAucDump[itemName]["player"] = curPlayer;
-            wtfacAucDump[itemName]["priceCounters"] = {};
+            wtfacAucDump[itemId] = {};
             
-            wtfacAucDump[itemName]["stats"] = {};
-            wtfacAucDump[itemName]["stats"]["absCnt"] = 0;
-            wtfacAucDump[itemName]["stats"]["absAvg"] = 0;
-            wtfacAucDump[itemName]["stats"]["absMin"] = 9999999;
+            wtfacAucDump[itemId]["itemName"] = itemName;
+            wtfacAucDump[itemId]["realm"] = curRealm;
+            wtfacAucDump[itemId]["player"] = curPlayer;
+            wtfacAucDump[itemId]["priceCounters"] = {};
+            
+            wtfacAucDump[itemId]["stats"] = {};
+            wtfacAucDump[itemId]["stats"]["absCnt"] = 0;
+            wtfacAucDump[itemId]["stats"]["absAvg"] = 0;
+            wtfacAucDump[itemId]["stats"]["absMin"] = 9999999;
 
-            wtfacAucDump[itemName]["stats"]["centCnt"] = 0;
-            wtfacAucDump[itemName]["stats"]["centAvg"] = 0;
+            wtfacAucDump[itemId]["stats"]["centCnt"] = 0;
+            wtfacAucDump[itemId]["stats"]["centAvg"] = 0;
 
-            wtfacAucDump[itemName]["stats"]["centRim"] = 0;
-            wtfacAucDump[itemName]["stats"]["centRimCnt"] = 0;
+            wtfacAucDump[itemId]["stats"]["centRim"] = 0;
+            wtfacAucDump[itemId]["stats"]["centRimCnt"] = 0;
 
             -- wtfacAucDump[itemName]["lots"] = {};
             -- wtfacAucDump[itemName]["control"] = 0;
@@ -143,17 +150,18 @@ function queryItemScan()
         end
 
         --print("Query "..wtfacTrackedItems[scanItemIdx].."("..scanItemPage..")");
-        QueryAuctionItems(wtfacTrackedItems[scanItemIdx], nil, nil, scanItemPage, nil, 0, false, true);
+        QueryAuctionItems(itemName, nil, nil, scanItemPage, nil, 0, false, true);
     end
 end
 
 function scanAuctionForTrackedItems()
+    scanItemIdx = 0;
     scanPreActions();
 
     scanItemIdx = 1;
     scanItemPage = 0;
     wtfacAucDump ={};
-    print("GonnaScan " .. wtfacTrackedItems[scanItemIdx])
+    print("GonnaScan ", wtfacTrackedItems[scanItemIdx]);
     queryItemScan();
 end
 
