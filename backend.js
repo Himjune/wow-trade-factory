@@ -123,6 +123,7 @@ app.get('/api/cards_report', (req, res) => {
   })();
 })
 
+app.use(express.static('static'));
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
