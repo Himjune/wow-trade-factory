@@ -6,27 +6,32 @@ const BASIC_CRAFTS = [
         "spellId": 25129,
         "itemId": 20749,
         "itemName": "Блестящее волшебное масло",
-        "reagents": [
+        "variants": [
             {
-                "itemId": 14344,
-                "itemName": "Большой сверкающий осколок",
-                "source": "auction",
-                "price": 0,
-                "amount": 2
-            },
-            {
-                "itemId": 4625,
-                "itemName": "Огнецвет",
-                "source": "auction",
-                "price": 0,
-                "amount": 3
-            },
-            {
-                "itemId": 18256,
-                "itemName": "Укрепленная колба",
-                "source": "trader",
-                "price": 3200,
-                "amount": 1
+                "title": "full",
+                "reagents": [
+                    {
+                        "itemId": 14344,
+                        "itemName": "Большой сверкающий осколок",
+                        "source": "auction",
+                        "price": 0,
+                        "amount": 2
+                    },
+                    {
+                        "itemId": 4625,
+                        "itemName": "Огнецвет",
+                        "source": "auction",
+                        "price": 0,
+                        "amount": 3
+                    },
+                    {
+                        "itemId": 18256,
+                        "itemName": "Укрепленная колба",
+                        "source": "trader",
+                        "price": 0.32,
+                        "amount": 1
+                    }
+                ]
             }
         ]
     }
@@ -37,10 +42,7 @@ require('./database.js').get_dbo.then((resolve) => {
     dbo = resolve;
 
     BASIC_CRAFTS.forEach(craft => {
-        dbo.collection(CRAFTS_COL).insertOne(craft, function(err, res) {
-            if (err) console.log("basic craft exists (err)", craft._id, err.code);
-            else console.log("basic craft added", craft._id, res);
-        })
+        dbo.collection(CRAFTS_COL).updateOne({_id: craft._id}, {$set: craft}, { upsert: true } );
     });
 });
 
