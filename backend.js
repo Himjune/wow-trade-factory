@@ -1,5 +1,5 @@
 const { once } = require('events');
-const express = require('express')
+const express = require('express');
 const app = express()
 const port = 3000
 
@@ -14,6 +14,7 @@ require('./database.js').get_dbo.then((resolve) => {
 
 const addResource = require('./resource').addResource;
 
+const getAucDump = require('./aucDump').getAucDump;
 const getCrafts = require('./crafts').getCrafts;
 
 setInterval(() => { files.updateInfoFromSavedVars(false); }, 1500);
@@ -125,6 +126,12 @@ app.get('/api/cards_report', (req, res) => {
 
 app.get('/api/crafts', (req, res) => {
   getCrafts().then(data => {
+    res.type('json');
+    res.send(data);
+  })
+});
+app.get('/api/auc_dump', (req, res) => {
+  getAucDump().then(data => {
     res.type('json');
     res.send(data);
   })

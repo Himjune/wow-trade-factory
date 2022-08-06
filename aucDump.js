@@ -66,3 +66,12 @@ exports.parseAucDump = (wtfacAucDump) => {
 
     console.log("parseAucDump", idx)
 }
+
+exports.getAucDump = () => {
+    return new Promise((resolve, reject) => {
+        dbo.collection(AUC_PRICES_COL).find({}).toArray(function (err, result) {
+            if (err) throw err;
+            resolve(result);
+        });
+    });
+}
