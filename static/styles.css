@@ -3,3 +3,7 @@
     height: 3rem;
     background-color: black;
 }
+
+.craft-place-price-val {
+    display: inline-block;
+}
