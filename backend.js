@@ -123,6 +123,13 @@ app.get('/api/cards_report', (req, res) => {
   })();
 })
 
+app.get('/api/crafts', (req, res) => {
+  getCrafts().then(data => {
+    res.type('json');
+    res.send(data);
+  })
+});
+
 app.use(express.static('static'));
 
 app.listen(port, () => {

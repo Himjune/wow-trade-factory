@@ -46,7 +46,7 @@ require('./database.js').get_dbo.then((resolve) => {
 
 exports.getCrafts = () => {
     return new Promise((resolve, reject) => {
-        dbo.collection(CRAFTS_COL).find({}, function (err, result) {
+        dbo.collection(CRAFTS_COL).find({}).toArray(function (err, result) {
             if (err) throw err;
             resolve(result);
         });
