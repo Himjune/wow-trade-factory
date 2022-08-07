@@ -115,9 +115,9 @@ function insertCraftPlateVals(craftObj, neutral, horde, aliance) {
     const centSellLine = plateElement.querySelector('.craft-plate-price-line-5cent-sell');
     insertValsInCraftLine(centSellLine, neutral5centSell, horde5centSell, aliance5centSell);
 
-    const neutralMarketSell = aucDumpItem.priceCounters[0].price;
     const hordeMarketSell = aucDumpItem.priceCounters.find((priceCounter) => { return priceCounter.faction == "H" }).price;
     const alianceMarketSell = aucDumpItem.priceCounters.find((priceCounter) => { return priceCounter.faction == "A" }).price;
+    const neutralMarketSell = Math.max(hordeMarketSell, alianceMarketSell);
 
     const marketSellLine = plateElement.querySelector('.craft-plate-price-line-market-sell');
     insertValsInCraftLine(marketSellLine, neutralMarketSell, hordeMarketSell, alianceMarketSell);
