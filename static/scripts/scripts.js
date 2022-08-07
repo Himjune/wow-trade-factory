@@ -1,3 +1,12 @@
+function getParentByClassName(element, className) {
+    let threshold = 10;
+    while (!element.classList.contains(className) && threshold > 0) {
+        element = element.parentNode;
+        threshold--;
+    }
+    return element;
+} 
+
 var crafts = [];
 var aucDump = [];
 
@@ -64,8 +73,12 @@ function createCraftPlate(craft) {
                             .replace(/{craft-name}/g, craft.itemName)
     );
 
-    let plate = document.getElementById("craftPlate-"+craft._id);
-    plate.querySelector('.eve');
+    const plate = document.getElementById("craftPlate-"+craft._id);
+
+    plate.querySelector('.craft-plate-amount-input').addEventListener('change', (e) => {
+        const parentPlate = getParentByClassName(e.target, 'craft-plate');
+        evaluteByAmount(parentPlate.id.split('-')[1], parseInt(e.target.value));
+    })
 }
 function insertValsInCraftLine(lineElement, neutralVal, hordeVal, alianceVal) {
     const valElements = lineElement.querySelectorAll('.craft-place-price-val');
@@ -236,7 +249,7 @@ function getCrafts() {
         crafts = data;
         crafts.forEach(craft => {
             createCraftPlate(craft);
-            evaluteByAmount(craft._id, 60);
+            evaluteByAmount(craft._id, 1);
         });
     })
 }
