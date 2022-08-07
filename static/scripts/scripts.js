@@ -1,6 +1,8 @@
 var crafts = [];
 var aucDump = [];
 
+const AUC_FEE_PERCENT = (5) / 100;
+
 const craftPlateTEmplate = `
     <div id="craftPlate-{craft-id}" class="craft-plate">
         <h2>{craft-name}</h2>
@@ -12,38 +14,44 @@ const craftPlateTEmplate = `
         </div>
 
         <div class="craft-plate-price">
-            <div class="craft-plate-price-line">
+            <div class="craft-plate-price-line craft-plate-price-line-min-craft">
                 <div class="craft-plate-price-title">Мин.Крафт</div>
                 <div class="craft-place-price-val craft-place-price-val-n">0</div>
                 <div class="craft-place-price-val craft-place-price-val-h">0</div>
                 <div class="craft-place-price-val craft-place-price-val-a">0</div>
             </div>
-            <div class="craft-plate-price-line">
+            <div class="craft-plate-price-line craft-plate-price-line-max-craft">
                 <div class="craft-plate-price-title">Макс.Крафт</div>
                 <div class="craft-place-price-val craft-place-price-val-n">0</div>
                 <div class="craft-place-price-val craft-place-price-val-h">0</div>
                 <div class="craft-place-price-val craft-place-price-val-a">0</div>
             </div>
-            <div class="craft-plate-price-line">
+            <div class="craft-plate-price-line craft-plate-price-line-min-sell">
                 <div class="craft-plate-price-title">Мин.Продажи</div>
                 <div class="craft-place-price-val craft-place-price-val-n">0</div>
                 <div class="craft-place-price-val craft-place-price-val-h">0</div>
                 <div class="craft-place-price-val craft-place-price-val-a">0</div>
             </div>
-            <div class="craft-plate-price-line">
+            <div class="craft-plate-price-line craft-plate-price-line-5cent-sell">
                 <div class="craft-plate-price-title">5%Прибыли</div>
                 <div class="craft-place-price-val craft-place-price-val-n">0</div>
                 <div class="craft-place-price-val craft-place-price-val-h">0</div>
                 <div class="craft-place-price-val craft-place-price-val-a">0</div>
             </div>
-            <div class="craft-plate-price-line">
+            <div class="craft-plate-price-line craft-plate-price-line-market-sell">
                 <div class="craft-plate-price-title">Рын.Продажа</div>
                 <div class="craft-place-price-val craft-place-price-val-n">0</div>
                 <div class="craft-place-price-val craft-place-price-val-h">0</div>
                 <div class="craft-place-price-val craft-place-price-val-a">0</div>
             </div>
+            <div class="craft-plate-price-line craft-plate-price-line-market-cent">
+                <div class="craft-plate-price-title">Рын.Процент</div>
+                <div class="craft-place-price-val craft-place-price-val-n">0</div>
+                <div class="craft-place-price-val craft-place-price-val-h">0</div>
+                <div class="craft-place-price-val craft-place-price-val-a">0</div>
+            </div>
         </div>
-        <div class="craft-plate-lore">Таким образом из вложенных <span class="craft-plate-lore-gold>0</span>g получится
+        <div class="craft-plate-lore">Таким образом из вложенных <span class="craft-plate-lore-gold">0</span>g получится
         <span class="craft-plate-lore-amount">0</span>шт. с чистой прибылью <span class="craft-plate-lore-profit">0g(0%)</span>
         или <span class="craft-plate-lore-5cent">0g(5%)</span>
         </div>
@@ -58,6 +66,63 @@ function createCraftPlate(craft) {
 
     let plate = document.getElementById("craftPlate-"+craft._id);
     plate.querySelector('.eve');
+}
+function insertValsInCraftLine(lineElement, neutralVal, hordeVal, alianceVal) {
+    const valElements = lineElement.querySelectorAll('.craft-place-price-val');
+    valElements[0].innerText = neutralVal.toFixed(2);
+    valElements[1].innerText = hordeVal.toFixed(2);
+    valElements[2].innerText = alianceVal.toFixed(2);
+}
+
+function insertCraftPlateVals(craftObj, neutral, horde, aliance) {
+    const plateElement = document.getElementById("craftPlate-"+craftObj.spellId);
+    const aucDumpItem = aucDump.find((item) => { return item.itemId == craftObj.itemId })
+    
+    const minCraftLine = plateElement.querySelector('.craft-plate-price-line-min-craft');
+    insertValsInCraftLine(minCraftLine, neutral.minPrice, horde.minPrice, aliance.minPrice);
+    
+    const maxCraftLine = plateElement.querySelector('.craft-plate-price-line-max-craft');
+    insertValsInCraftLine(maxCraftLine, neutral.maxPrice, horde.maxPrice, aliance.maxPrice);
+
+    const neutralMinSell = neutral.maxPrice*(1+AUC_FEE_PERCENT);
+    const hordeMinSell = horde.maxPrice*(1+AUC_FEE_PERCENT);
+    const alianceMinSell = aliance.maxPrice*(1+AUC_FEE_PERCENT);
+
+    const minSellLine = plateElement.querySelector('.craft-plate-price-line-min-sell');
+    insertValsInCraftLine(minSellLine, neutralMinSell, hordeMinSell, alianceMinSell);
+
+    const neutral5centSell = neutral.maxPrice*(1+AUC_FEE_PERCENT+0.05);
+    const horde5centSell = horde.maxPrice*(1+AUC_FEE_PERCENT+0.05);
+    const aliance5centSell = aliance.maxPrice*(1+AUC_FEE_PERCENT+0.05);
+
+    const centSellLine = plateElement.querySelector('.craft-plate-price-line-5cent-sell');
+    insertValsInCraftLine(centSellLine, neutral5centSell, horde5centSell, aliance5centSell);
+
+    const neutralMarketSell = aucDumpItem.priceCounters[0].price;
+    const hordeMarketSell = aucDumpItem.priceCounters.find((priceCounter) => { return priceCounter.faction == "H" }).price;
+    const alianceMarketSell = aucDumpItem.priceCounters.find((priceCounter) => { return priceCounter.faction == "A" }).price;
+
+    const marketSellLine = plateElement.querySelector('.craft-plate-price-line-market-sell');
+    insertValsInCraftLine(marketSellLine, neutralMarketSell, hordeMarketSell, alianceMarketSell);
+    
+    const marketCentLine = plateElement.querySelector('.craft-plate-price-line-market-cent');
+    insertValsInCraftLine(marketCentLine, (neutralMarketSell - neutralMinSell) / neutralMinSell * 100,
+        (hordeMarketSell - neutralMinSell) / neutralMinSell * 100,
+        (alianceMarketSell - neutralMinSell) / neutralMinSell * 100
+    );
+
+    plateElement.querySelector('.craft-plate-lore-gold').innerText = neutral.sum.toFixed(2);
+    plateElement.querySelector('.craft-plate-lore-amount').innerText = neutral.done;
+
+    // <span class="craft-plate-lore-profit">0g(0%)</span>
+    const sellSum = neutralMarketSell*neutral.done;
+    plateElement.querySelector('.craft-plate-lore-profit').innerText = (sellSum-neutral.sum).toFixed(2)+"g"+
+                                                                        "("+((sellSum-neutral.sum) / neutral.sum *100 -5 ).toFixed(2)+"%)";
+
+    // <span class="craft-plate-lore-5cent">0g(5%)</span>
+    const fCentSellSum = neutral5centSell*neutral.done;
+    plateElement.querySelector('.craft-plate-lore-5cent').innerText = (fCentSellSum-neutral.sum).toFixed(2)+"g"+
+                                                                        "("+((fCentSellSum-neutral.sum) / neutral.sum *100 -5 ).toFixed(2)+"%)";
 }
 
 // ToDo: probably we want to take maxe price of one last reagent and use it as base for whole last item
@@ -120,7 +185,7 @@ function aquireReagentsForCraft(reagentsArr, amount, filter) {
 function getCraftEvalutionPercise(variant, amount, filter = false) {
     let res = {
         isComplete: true,
-        done: amount, // ToDo: Should handle return of max available in notComplited case
+        done: amount,
         minPrice: 0,
         maxPrice: 0,
         sum: 0
@@ -148,7 +213,7 @@ function getCraftEvalutionPercise(variant, amount, filter = false) {
         }                
     }
 
-    console.log("getCraftEvalutionPercise", variant, res);
+    //console.log("getCraftEvalutionPercise", variant, res);
     return res;
 }
 
@@ -156,10 +221,11 @@ function evaluteByAmount(craftId, amount) {
     const craft = crafts.find((c) => {return c.spellId == craftId});
 
     const neutral = getCraftEvalutionPercise(craft.variants[0], amount);
-    console.log("evaluteByAmount", craftId, amount, neutral);
+    const horde = getCraftEvalutionPercise(craft.variants[0], amount, "H");
+    const aliance = getCraftEvalutionPercise(craft.variants[0], amount, "A");
 
-    //const horde = getCraftEvalutionPercise(craft.variants[0], amount, "H");
-    //const aliance = getCraftEvalutionPercise(craft.variants[0], amount, "A");
+    console.log("n", neutral, "h", horde, "a", aliance);
+    insertCraftPlateVals(craft, neutral, horde, aliance);
 }
 
 function getCrafts() {
@@ -170,7 +236,7 @@ function getCrafts() {
         crafts = data;
         crafts.forEach(craft => {
             createCraftPlate(craft);
-            evaluteByAmount(craft._id, 600);
+            evaluteByAmount(craft._id, 60);
         });
     })
 }

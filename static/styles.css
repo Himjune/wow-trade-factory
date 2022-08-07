@@ -4,6 +4,20 @@
     background-color: black;
 }
 
+.craft-plate-price-line {
+    padding-bottom: 0.3rem;
+}
+
 .craft-place-price-val {
     display: inline-block;
+    width: 6rem;
+}
+.craft-place-price-val-n {
+    color: green;
+}
+.craft-place-price-val-h {
+    color: red;
+}
+.craft-place-price-val-a {
+    color: blue;
 }
