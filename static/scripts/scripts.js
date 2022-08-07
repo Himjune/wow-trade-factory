@@ -79,6 +79,10 @@ function createCraftPlate(craft) {
         const parentPlate = getParentByClassName(e.target, 'craft-plate');
         evaluteByAmount(parentPlate.id.split('-')[1], parseInt(e.target.value));
     })
+    plate.querySelector('.craft-plate-gold-input').addEventListener('change', (e) => {
+        const parentPlate = getParentByClassName(e.target, 'craft-plate');
+        evaluteByGold(parentPlate.id.split('-')[1], parseInt(e.target.value));
+    })
 }
 function insertValsInCraftLine(lineElement, neutralVal, hordeVal, alianceVal) {
     const valElements = lineElement.querySelectorAll('.craft-place-price-val');
@@ -124,6 +128,9 @@ function insertCraftPlateVals(craftObj, neutral, horde, aliance) {
         (alianceMarketSell - neutralMinSell) / neutralMinSell * 100
     );
 
+    plateElement.querySelector('.craft-plate-gold-input').value = neutral.sum.toFixed(2);
+    plateElement.querySelector('.craft-plate-amount-input').value = neutral.done;
+
     plateElement.querySelector('.craft-plate-lore-gold').innerText = neutral.sum.toFixed(2);
     plateElement.querySelector('.craft-plate-lore-amount').innerText = neutral.done;
 
@@ -160,12 +167,11 @@ function aquireReagent(reagentId, target, filter) {
         res.aquired += taken;
         res.sum += taken*reagentPrices[idx].price;
 
-        console.log("tar", target, "tak", taken, reagentPrices[idx]);
         idx++;
     }
     if (target>0) { res.isComplete = false; }
 
-    console.log("aquireReagent", reagentId, res);
+    //console.log("aquireReagent", reagentId, res);
     return res;
 }
 
@@ -191,7 +197,7 @@ function aquireReagentsForCraft(reagentsArr, amount, filter) {
         }
     });
 
-    console.log("aquireReagentsForCraft", reagentsArr, res);
+    //console.log("aquireReagentsForCraft", reagentsArr, res);
     return res;
 }
 
@@ -232,6 +238,32 @@ function getCraftEvalutionPercise(variant, amount, filter = false) {
 
 function evaluteByAmount(craftId, amount) {
     const craft = crafts.find((c) => {return c.spellId == craftId});
+
+    const neutral = getCraftEvalutionPercise(craft.variants[0], amount);
+    const horde = getCraftEvalutionPercise(craft.variants[0], amount, "H");
+    const aliance = getCraftEvalutionPercise(craft.variants[0], amount, "A");
+
+    console.log("n", neutral, "h", horde, "a", aliance);
+    insertCraftPlateVals(craft, neutral, horde, aliance);
+}
+
+function evaluteByGold(craftId, gold) {
+    const craft = crafts.find((c) => {return c.spellId == craftId});
+
+    let pred = getCraftEvalutionPercise(craft.variants[0], 1);
+
+    let left = 1;
+    let right = Math.floor(gold / pred.maxPrice);
+
+    while (right-left > 1 && pred.isComplete) {
+        let center = Math.floor((left+right)/2);
+        pred = getCraftEvalutionPercise(craft.variants[0], center);
+        if (pred.sum < gold) left = center;
+        else right = center;
+        console.log("whilePred", left, center, right, pred);
+    }
+    pred = getCraftEvalutionPercise(craft.variants[0], right);
+    let amount = (pred.sum < gold) ? (right) : (right-1);
 
     const neutral = getCraftEvalutionPercise(craft.variants[0], amount);
     const horde = getCraftEvalutionPercise(craft.variants[0], amount, "H");
