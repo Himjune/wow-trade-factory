@@ -83,6 +83,10 @@ function createCraftPlate(craft) {
         const parentPlate = getParentByClassName(e.target, 'craft-plate');
         evaluteByGold(parentPlate.id.split('-')[1], parseInt(e.target.value));
     })
+    plate.querySelector('.craft-plate-sell-input').addEventListener('change', (e) => {
+        const parentPlate = getParentByClassName(e.target, 'craft-plate');
+        evaluteBySell(parentPlate.id.split('-')[1], parseInt(e.target.value));
+    })
 }
 function insertValsInCraftLine(lineElement, neutralVal, hordeVal, alianceVal) {
     const valElements = lineElement.querySelectorAll('.craft-place-price-val');
@@ -264,6 +268,35 @@ function evaluteByGold(craftId, gold) {
     }
     pred = getCraftEvalutionPercise(craft.variants[0], right);
     let amount = (pred.sum < gold) ? (right) : (right-1);
+
+    const neutral = getCraftEvalutionPercise(craft.variants[0], amount);
+    const horde = getCraftEvalutionPercise(craft.variants[0], amount, "H");
+    const aliance = getCraftEvalutionPercise(craft.variants[0], amount, "A");
+
+    console.log("n", neutral, "h", horde, "a", aliance);
+    insertCraftPlateVals(craft, neutral, horde, aliance);
+}
+
+function evaluteBySell(craftId, sell) {
+    const craft = crafts.find((c) => {return c.spellId == craftId});
+    const tarRatio = (1+ AUC_FEE_PERCENT+0.05);
+
+    let right = 2;
+    let pred = getCraftEvalutionPercise(craft.variants[0], right);
+    while (pred.maxPrice*tarRatio < sell && pred.isComplete) {
+        pred = getCraftEvalutionPercise(craft.variants[0], (right = right*2));
+    }
+    let left = right/2;
+
+    while (right-left > 1 && pred.isComplete) {
+        let center = Math.floor((left+right)/2);
+        pred = getCraftEvalutionPercise(craft.variants[0], center);
+        if (pred.maxPrice*tarRatio < sell) left = center;
+        else right = center;
+        console.log("whilePred", left, center, right, pred);
+    }
+    pred = getCraftEvalutionPercise(craft.variants[0], right);
+    let amount = (pred.maxPrice*tarRatio < sell) ? (right) : (right-1);
 
     const neutral = getCraftEvalutionPercise(craft.variants[0], amount);
     const horde = getCraftEvalutionPercise(craft.variants[0], amount, "H");
