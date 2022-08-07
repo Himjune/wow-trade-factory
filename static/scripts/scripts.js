@@ -100,7 +100,7 @@ function aquireReagentsForCraft(reagentsArr, amount, filter) {
 
     reagentsArr.forEach(reagent => {
         if (reagent.source == 'trader') {
-            res.aquired = amount;
+            if (res.isComplete) res.aquired = amount;
             res.sum += amount * reagent.price*reagent.amount; // Probably want ggsscc everywhere
         } else if (reagent.source == 'auction') {
             const aquiredReagent = aquireReagent(reagent.itemId, amount*reagent.amount, filter);
@@ -155,8 +155,11 @@ function getCraftEvalutionPercise(variant, amount, filter = false) {
 function evaluteByAmount(craftId, amount) {
     const craft = crafts.find((c) => {return c.spellId == craftId});
 
-    const percise = getCraftEvalutionPercise(craft.variants[0], amount, "H");
-    console.log("evaluteByAmount", craftId, amount, percise);
+    const neutral = getCraftEvalutionPercise(craft.variants[0], amount);
+    console.log("evaluteByAmount", craftId, amount, neutral);
+
+    //const horde = getCraftEvalutionPercise(craft.variants[0], amount, "H");
+    //const aliance = getCraftEvalutionPercise(craft.variants[0], amount, "A");
 }
 
 function getCrafts() {
@@ -167,7 +170,7 @@ function getCrafts() {
         crafts = data;
         crafts.forEach(craft => {
             createCraftPlate(craft);
-            evaluteByAmount(craft._id, 300);
+            evaluteByAmount(craft._id, 600);
         });
     })
 }
