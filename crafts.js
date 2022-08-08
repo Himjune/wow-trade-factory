@@ -34,6 +34,66 @@ const BASIC_CRAFTS = [
                 ]
             }
         ]
+    },
+    {
+        _id: 31432,
+        "spellId": 31432,
+        "itemId": 24274,
+        "itemName": "Руническая чародейская нить",
+        "variants": [
+            {
+                "title": "маной",
+                "reagents": [
+                    {
+                        "itemId": 22457,
+                        "itemName": "Изначальная мана",
+                        "source": "auction",
+                        "price": 0,
+                        "amount": 10
+                    },
+                    {
+                        "itemId": 23572,
+                        "itemName": "Изначальная пустота",
+                        "source": "auction",
+                        "price": 0,
+                        "amount": 1
+                    },
+                    {
+                        "itemId": 14341,
+                        "itemName": "Руническая нить",
+                        "source": "trader",
+                        "price": 0.4250,
+                        "amount": 1
+                    }
+                ]
+            },
+            {
+                "title": "частицами",
+                "reagents": [
+                    {
+                        "itemId": 22576,
+                        "itemName": "Частица маны",
+                        "source": "auction",
+                        "price": 0,
+                        "amount": 100
+                    },
+                    {
+                        "itemId": 23572,
+                        "itemName": "Изначальная пустота",
+                        "source": "auction",
+                        "price": 0,
+                        "amount": 1
+                    },
+                    {
+                        "itemId": 14341,
+                        "itemName": "Руническая нить",
+                        "source": "trader",
+                        "price": 0.4250,
+                        "amount": 1
+                    }
+                ]
+            }
+        ]
     }
 ]
 
