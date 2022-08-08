@@ -4,6 +4,21 @@
     background-color: black;
 }
 
+
+.neutral-value {
+    color: green;
+}
+.horde-value {
+    color: red;
+}
+.aliance-value {
+    color: blue;
+}
+
+.craft-plate {
+    padding-bottom: 4rem;
+    border: 1px solid darkolivegreen; 
+}
 .craft-plate-price-line {
     padding-bottom: 0.3rem;
 }
@@ -12,12 +27,19 @@
     display: inline-block;
     width: 6rem;
 }
-.craft-place-price-val-n {
-    color: green;
+
+.reagents-block {
+    padding-bottom: 2rem;
 }
-.craft-place-price-val-h {
-    color: red;
+.reagent-line {
+    border: 1px solid black; 
 }
-.craft-place-price-val-a {
-    color: blue;
+.reagent-line-name {
+    display: inline-block;
+    min-width: 12rem;
+}
+.reagent-line-val {
+    display: inline-block;
+    padding: 0 0.5rem;
+    min-width: 6rem;
 }
