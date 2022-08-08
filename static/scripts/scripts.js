@@ -17,9 +17,9 @@ const craftPlateTEmplate = `
         <h2>{craft-name}</h2>
 
         <div class="craft-plate-inputs">
-            gold <input class="craft-plate-input craft-plate-gold-input" type="number" placeholder="gold" value="1"/>
-            amount <input class="craft-plate-input craft-plate-amount-input" type="number" placeholder="amount" value="1"/>
-            sell <input class="craft-plate-input craft-plate-sell-input" type="number" placeholder="sell" value="0"/>
+            gold <input class="craft-plate-input craft-plate-gold-input" type="number" placeholder="gold" value="1" step="0.01"/>
+            amount <input class="craft-plate-input craft-plate-amount-input" type="number" placeholder="amount" value="1" step="0.01"/>
+            sell <input class="craft-plate-input craft-plate-sell-input" type="number" placeholder="sell" value="0" step="0.01"/>
         </div>
 
         <div class="craft-plate-price">
