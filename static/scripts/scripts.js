@@ -18,7 +18,7 @@ const craftPlateTEmplate = `
 
         <div class="craft-plate-inputs">
             gold <input class="craft-plate-input craft-plate-gold-input" type="number" placeholder="gold" value="1" step="0.01"/>
-            amount <input class="craft-plate-input craft-plate-amount-input" type="number" placeholder="amount" value="1" step="0.01"/>
+            amount <input class="craft-plate-input craft-plate-amount-input" type="number" placeholder="amount" value="1"/>
             sell <input class="craft-plate-input craft-plate-sell-input" type="number" placeholder="sell" value="0" step="0.01"/>
         </div>
 
@@ -81,11 +81,11 @@ function createCraftPlate(craft) {
     })
     plate.querySelector('.craft-plate-gold-input').addEventListener('change', (e) => {
         const parentPlate = getParentByClassName(e.target, 'craft-plate');
-        evaluteByGold(parentPlate.id.split('-')[1], parseInt(e.target.value));
+        evaluteByGold(parentPlate.id.split('-')[1], parseFloat(e.target.value));
     })
     plate.querySelector('.craft-plate-sell-input').addEventListener('change', (e) => {
         const parentPlate = getParentByClassName(e.target, 'craft-plate');
-        evaluteBySell(parentPlate.id.split('-')[1], parseInt(e.target.value));
+        evaluteBySell(parentPlate.id.split('-')[1], parseFloat(e.target.value));
     })
 }
 function insertValsInCraftLine(lineElement, neutralVal, hordeVal, alianceVal) {
@@ -252,6 +252,7 @@ function evaluteByAmount(craftId, amount) {
 }
 
 function evaluteByGold(craftId, gold) {
+    console.log("evaluteByGold", craftId, gold);
     const craft = crafts.find((c) => {return c.spellId == craftId});
 
     let pred = getCraftEvalutionPercise(craft.variants[0], 1);
@@ -278,6 +279,7 @@ function evaluteByGold(craftId, gold) {
 }
 
 function evaluteBySell(craftId, sell) {
+    console.log("evaluteByGold", craftId, sell);
     const craft = crafts.find((c) => {return c.spellId == craftId});
     const tarRatio = (1+ AUC_FEE_PERCENT+0.05);
 
