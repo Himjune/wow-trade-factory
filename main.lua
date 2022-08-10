@@ -1,6 +1,16 @@
+function table.contains(table, element)
+    for _, value in pairs(table) do
+        if value == element then
+            return true
+        end
+    end
+    return false
+end
+
 wtfacLastScan = 0;
 wtfacAucDump = {}  -- default value until ADDON_LOADED
 wtfacMailTrack = {}
+wtfacCraftTrack = {}
 
 CONST_QUERY_DELAY = 0.6;
                 -- d*h*m*s      
@@ -31,6 +41,14 @@ local wtfacTrackedItems = {
     23572, -- изначальная-пустота
     24274, -- руническая-чародейская-нить
 };
+local wtfacTrackedCrafts = {
+    28105, -- создание-изначальной-маны
+    31432, -- руническая-чародейская-нить
+    28106, -- создание-изначальной-жизни
+    31433, -- золотая-чародейская-нить
+    25129, -- блестящее-волшебное-масло
+    25130, -- блестящее-масло-маны
+}
 
 local scanItemIdx = 0; -- 0 indicates no search in progress
 local scanItemPage = 0;
@@ -204,9 +222,9 @@ SlashCmdList["WTFAC"] = function(msg)
 end
 
 function trackMail(mailIndex)
-    if not (wtfacMailTrack and wtfacMailTrack['startTs'] and ((time()-CONST_DATA_SAVE) < wtfacMailTrack['startTs'])) then
+    if not (wtfacMailTrack and wtfacMailTrack['ts'] and ((time()-CONST_DATA_SAVE) < wtfacMailTrack['ts'])) then
         wtfacMailTrack = {};
-        wtfacMailTrack['startTs'] = time();
+        wtfacMailTrack['ts'] = time();
         wtfacMailTrack['mails'] = {};
     end
 
@@ -260,6 +278,8 @@ frame:RegisterEvent("AUCTION_ITEM_LIST_UPDATE");
 
 frame:RegisterEvent("CLOSE_INBOX_ITEM");
 
+frame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");
+
 
 local function eventHandler(event, ...)
     local event, arg1, arg2, arg3, arg4 = select(1,...);
@@ -278,6 +298,24 @@ local function eventHandler(event, ...)
         -- print("wtfac aiListUpdate");
         if scanItemIdx>0 then
             parseUpdatedPage();
+        end
+    end
+
+
+    if event == "UNIT_SPELLCAST_SUCCEEDED" then
+        --print(event, arg3)
+        if table.contains(wtfacTrackedCrafts, arg3) then
+            if not (wtfacCraftTrack and wtfacCraftTrack['ts'] and ((time()-CONST_DATA_SAVE) < wtfacCraftTrack['ts'])) then
+                wtfacCraftTrack = {};
+                wtfacCraftTrack['ts'] = time();
+                wtfacCraftTrack['crafts'] = {};
+            end
+            local uuid = uuid();
+            wtfacCraftTrack['crafts'][uuid] = {}
+            wtfacCraftTrack['crafts'][uuid]["_id"] = uuid;
+            wtfacCraftTrack['crafts'][uuid]["spellId"] = arg3;
+            wtfacCraftTrack['crafts'][uuid]["player"] = curPlayer;
+            wtfacCraftTrack['crafts'][uuid]["realm"] = curRealm;
         end
     end
 
