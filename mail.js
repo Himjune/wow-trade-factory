@@ -34,5 +34,5 @@ exports.parseMail = async (wtfacMailTrack) => {
             }
         }
     );
-    console.log('Mail parsed', trackResult);
+    console.log("Mail parsed (C/D/A)", trackResult.created, trackResult.duplicate, trackResult.all);
 }

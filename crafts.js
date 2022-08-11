@@ -125,5 +125,5 @@ exports.parseCraftTracks = async (wtfacCraftTrack) => {
             console.log("tracked craft", el, el.spellId);
         }
     );
-    console.log("parseCraftTracks", trackResult);
+    console.log("parseCraftTracks (C/D/A)", trackResult.created, trackResult.duplicate, trackResult.all);
 }
