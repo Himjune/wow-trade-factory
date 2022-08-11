@@ -1,6 +1,6 @@
 const dbUrl = "mongodb://localhost:27017/wtfacdb";
 var MongoClient = require('mongodb').MongoClient;
-var dbo = null;
+let dbo = null;
 
 // ToDo: probably should handle connection race but gonna try avoid using dbo before connection
 exports.get_dbo = new Promise((resolve, reject) => {

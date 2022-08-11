@@ -1,6 +1,6 @@
 var MongoClient = require('mongodb').MongoClient;
 
-var dbo = null;
+let dbo = null;
 require('./database.js').get_dbo.then((resolve) => {
     dbo = resolve;
 });
