@@ -8,6 +8,7 @@ require('./database.js').get_dbo.then((resolve) => {
 
 const saved_vars_parse = require('./savedVarsParse');
 const parseMail = require('./mail').parseMail;
+const parseCrafts = require('./crafts').parseCraftTracks;
 const parseAucDump = require('./aucDump').parseAucDump;
 
 
@@ -56,6 +57,7 @@ async function tryParseFile(path, isForce = false) {
 function handleNewParse(newParse) {
   //console.log('handleNewParse', newParse);
   if (newParse && newParse.wtfacMailTrack) parseMail(newParse.wtfacMailTrack);
+  if (newParse && newParse.wtfacCraftTrack) parseCrafts(newParse.wtfacCraftTrack);
   if (newParse && newParse.wtfacAucDump) parseAucDump(newParse.wtfacAucDump);
 }
 

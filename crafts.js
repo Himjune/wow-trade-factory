@@ -1,5 +1,7 @@
 
 const CRAFTS_COL = "crafts";
+const CRAFT_TRACKER_COL = "craftTracker";
+
 const BASIC_CRAFTS = [
     {
         _id: 25129,
@@ -97,7 +99,7 @@ const BASIC_CRAFTS = [
     }
 ]
 
-var dbo = null;
+let dbo = null;
 require('./database.js').get_dbo.then((resolve) => {
     dbo = resolve;
 
@@ -106,6 +108,8 @@ require('./database.js').get_dbo.then((resolve) => {
     });
 });
 
+const {trackerAsyncParseSyncCB, parseTracker} = require('./tracker');
+
 exports.getCrafts = () => {
     return new Promise((resolve, reject) => {
         dbo.collection(CRAFTS_COL).find({}).toArray(function (err, result) {
@@ -113,4 +117,13 @@ exports.getCrafts = () => {
             resolve(result);
         });
     });
+}
+
+exports.parseCraftTracks = async (wtfacCraftTrack) => {
+    const trackResult = await trackerAsyncParseSyncCB(wtfacCraftTrack.crafts, CRAFT_TRACKER_COL,
+        (el, idx, arr) => {
+            console.log("tracked craft", el, el.spellId);
+        }
+    );
+    console.log("parseCraftTracks", trackResult);
 }

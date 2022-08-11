@@ -1,10 +1,11 @@
-
+const MAIL_TRACKER_COL = "mailTracker";
 var MongoClient = require('mongodb').MongoClient;
 
 var dbo = null;
 require('./database.js').get_dbo.then((resolve) => {
     dbo = resolve;
 });
+const {trackerAsyncParseSyncCB, parseTracker} = require('./tracker');
 
 const addResource = require('./resource').addResource;
 
@@ -25,26 +26,13 @@ async function handleAuctionLetter(mailObj) {
 }
 
 exports.parseMail = async (wtfacMailTrack) => {
-    let mailIds = Object.keys(wtfacMailTrack.mails);
-    let dup = 0, crt = 0;
-
-    let idx = 0;
-    while (idx < mailIds.length) {
-        const mailId = mailIds[idx];
-        let mailObj = wtfacMailTrack.mails[mailId];
-        let insRes = false;
-        try {
-            insRes = await dbo.collection("mails").insertOne(mailObj);
-            crt++;
+    const trackResult = await trackerAsyncParseSyncCB(wtfacMailTrack.mails, MAIL_TRACKER_COL,
+        async (mailObj, idx, arr) => {
+            console.log("tracked mail", mailObj.subject);
             if (mailObj.invoiceType && (hordeAuctions.includes(mailObj.sender) || alianceAuctions.includes(mailObj.sender))) {
                 await handleAuctionLetter(mailObj);
             }
-        } catch (error) {
-            dup++;
         }
-
-        idx++;
-    };
-
-    console.log('Mail parsed (C/D/A):', crt, dup, crt + dup);
+    );
+    console.log('Mail parsed', trackResult);
 }
