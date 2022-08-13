@@ -38,6 +38,40 @@ const BASIC_CRAFTS = [
         ]
     },
     {
+        _id: 25130,
+        "spellId": 25130,
+        "itemId": 20748,
+        "itemName": "Блестящее масло маны",
+        "variants": [
+            {
+                "title": "full",
+                "reagents": [
+                    {
+                        "itemId": 14344,
+                        "itemName": "Большой сверкающий осколок",
+                        "source": "auction",
+                        "price": 0,
+                        "amount": 2
+                    },
+                    {
+                        "itemId": 8831,
+                        "itemName": "Лиловый лотос",
+                        "source": "auction",
+                        "price": 0,
+                        "amount": 3
+                    },
+                    {
+                        "itemId": 18256,
+                        "itemName": "Укрепленная колба",
+                        "source": "trader",
+                        "price": 0.32,
+                        "amount": 1
+                    }
+                ]
+            }
+        ]
+    },
+    {
         _id: 31432,
         "spellId": 31432,
         "itemId": 24274,
@@ -121,8 +155,13 @@ exports.getCrafts = () => {
 
 exports.parseCraftTracks = async (wtfacCraftTrack) => {
     const trackResult = await trackerAsyncParseSyncCB(wtfacCraftTrack.crafts, CRAFT_TRACKER_COL,
-        (el, idx, arr) => {
-            console.log("tracked craft", el, el.spellId);
+        (craftTrackingObj, idx, arr) => {
+            console.log("tracked craft", craftTrackingObj.spellId);
+            dbo.collection(CRAFTS_COL).findOne({ _id: craftTrackingObj.spellId }, function(err, result) {
+                if (result) {
+                    
+                }
+            });
         }
     );
     console.log("parseCraftTracks (C/D/A)", trackResult.created, trackResult.duplicate, trackResult.all);
