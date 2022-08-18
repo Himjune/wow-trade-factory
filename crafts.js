@@ -130,6 +130,41 @@ const BASIC_CRAFTS = [
                 ]
             }
         ]
+    },
+    
+    {
+        _id: 31433,
+        "spellId": 31433,
+        "itemId": 24276,
+        "itemName": "Золотая чародейская нить",
+        "variants": [
+            {
+                "title": "маной",
+                "reagents": [
+                    {
+                        "itemId": 21886,
+                        "itemName": "Изначальная жизнь",
+                        "source": "auction",
+                        "price": 0,
+                        "amount": 10
+                    },
+                    {
+                        "itemId": 23572,
+                        "itemName": "Изначальная пустота",
+                        "source": "auction",
+                        "price": 0,
+                        "amount": 1
+                    },
+                    {
+                        "itemId": 14341,
+                        "itemName": "Руническая нить",
+                        "source": "trader",
+                        "price": 0.4250,
+                        "amount": 1
+                    }
+                ]
+            }
+        ]
     }
 ]
 
