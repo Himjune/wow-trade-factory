@@ -12,7 +12,7 @@ wtfacAucDump = {}  -- default value until ADDON_LOADED
 wtfacMailTrack = {}
 wtfacCraftTrack = {}
 
-CONST_QUERY_DELAY = 0.6;
+CONST_QUERY_DELAY = 1;
                 -- d*h*m*s      
 CONST_DATA_SAVE = 2*24*60*60;
 
