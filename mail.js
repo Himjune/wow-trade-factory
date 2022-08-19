@@ -18,7 +18,7 @@ async function handleAuctionLetter(mailObj) {
 
     let isNewResource = false;
     if (mailObj.invoiceType == "buyer") {
-        isNewResource = await addResource(mailObj.itemName, mailObj.buyout, mailObj.amount, mailObj.crealm,
+        isNewResource = await addResource(mailObj.itemId, mailObj.itemName, mailObj.buyout, mailObj.amount, mailObj.crealm,
             [{ type: "auction", info: mailObj.sender }]);
     }
 

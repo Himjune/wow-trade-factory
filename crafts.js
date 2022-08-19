@@ -123,6 +123,23 @@ const BASIC_CRAFTS = [
                 "amount": 1
             }
         ]
+    },
+    
+    {
+        _id: 28106,
+        "spellId": 28106,
+        "itemId": 21886,
+        "defaultAmount": 1,
+        "itemName": "Изначальная жизнь",
+        "reagents": [
+            {
+                "itemId": 21886,
+                "itemName": "Частица жизни",
+                "source": "auction",
+                "price": 0,
+                "amount": 10
+            }
+        ]
     }
 ]
 
@@ -136,6 +153,7 @@ require('./database.js').get_dbo.then((resolve) => {
 });
 
 const {trackerAsyncParseSyncCB, parseTracker} = require('./tracker');
+const {addCraftedResource, addResource} = require('./resource')
 
 exports.getCrafts = () => {
     return new Promise((resolve, reject) => {
@@ -146,18 +164,23 @@ exports.getCrafts = () => {
         });
     });
 }
+exports.getCraft = (craftId) => {
+    return new Promise((resolve, reject) => {
+        dbo.collection(CRAFTS_COL).findOne({_id: craftId}, function (err, result) {
+            if (err) throw err;
+            resolve(result);
+        });
+    });
+}
 
 exports.parseCraftTracks = async (wtfacCraftTrack) => {
     const trackResult = await trackerAsyncParseSyncCB(wtfacCraftTrack.crafts, CRAFT_TRACKER_COL,
         async (craftTrackingObj, idx, arr) => {
-            console.log("tracked craft", craftTrackingObj.spellId);
-            await dbo.collection(CRAFTS_COL).findOne({ _id: craftTrackingObj.spellId }, function(err, result) {
-                if (result) {
-                    let proto = {
-
-                    }
-                }
-            });
+            const craftRecipe = await dbo.collection(CRAFTS_COL).findOne({ _id: craftTrackingObj.spellId });
+            console.log("parseCraftTracks", craftTrackingObj, craftRecipe);
+            if (craftRecipe) {
+                const isRsourceAddedNew = await addCraftedResource(craftRecipe.itemId, craftRecipe.itemName, craftTrackingObj.realm, craftRecipe.reagents);   
+            }                 
         }
     );
     console.log("parseCraftTracks (C/D/A)", trackResult.created, trackResult.duplicate, trackResult.all);

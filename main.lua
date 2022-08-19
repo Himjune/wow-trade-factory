@@ -234,6 +234,8 @@ function trackMail(mailIndex)
 
     local packageIcon, stationeryIcon, sender, subject, money, CODAmount, daysLeft, hasItem, wasRead, wasReturned, textCreated, canReply, isGM = GetInboxHeaderInfo(mailIndex);
     local invoiceType, itemName, playerName, bid, buyout, deposit, consignment = GetInboxInvoiceInfo(mailIndex);
+    
+
     local bodyText, stationaryMiddle, stationaryEdge, isTakeable, isInvoice = GetInboxText(mailIndex);
 
     local mailUuid = uuid();
@@ -261,6 +263,10 @@ function trackMail(mailIndex)
     proto['invoiceType'] = invoiceType;
 
     if invoiceType then
+        local itemID, itemType, itemSubType, itemEquipLoc, icon, classID, subclassID = GetItemInfoInstant(itemName);
+        print("GetItemInfoInstant", itemID, itemType, itemSubType, itemEquipLoc, icon, classID, subclassID);
+
+        proto['itemId'] = itemID;
         proto['itemName'] = itemName;
 
         --print("Match");
