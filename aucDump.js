@@ -67,6 +67,48 @@ exports.parseAucDump = (wtfacAucDump) => {
     console.log("parseAucDump", idx)
 }
 
+
+
+
+function lotCmp (a, b) {
+    return (a.price != b.price) ? (a.price - b.price) : (a.faction - b.faction);
+}
+
+async function processAucItem (itemObj) {
+    return new Promise((resolve, reject) => {
+        console.log("processAucItem", itemObj);
+        const aucPricesFilter = {itemId: itemObj.itemId, realm: itemObj.realm};
+
+        dbo.collection(AUC_PRICES_COL).findOne(aucPricesFilter, function (err, found) {
+            if (err) throw err;
+            if (!found) {
+                itemObj.lots = Object.values(itemObj.lots).sort((a,b) => { return lotCmp(a,b) });
+                let res = dbo.collection(AUC_PRICES_COL).insertOne(itemObj);
+
+                console.log("addAucPrices INS", itemObj.itemName, itemObj.faction);
+                resolve(res);
+            } else {
+                let newLotsArray = found.lots
+                                        .filter((lotObj) => { return lotObj.faction != itemObj.faction})
+                                        .concat(Object.values(itemObj.lots))
+                                        .sort((a,b) => { return lotCmp(a,b) });
+
+                let res = dbo.collection(AUC_PRICES_COL).updateOne(aucPricesFilter,
+                                            { $set: { ts : itemObj.ts, player: itemObj.player, faction: itemObj.faction, lots: newLotsArray } } );
+                         
+                console.log("addAucPrices UPD", itemObj.itemName, itemObj.faction);
+                resolve(res);
+            }
+        });
+    });
+}
+
+exports.parseWholeAucDump = (wtfacWholeAucDumpItems) => {
+    return Promise.all(Object.values(wtfacWholeAucDumpItems).map(
+        (wtfacWholeAucDumpItem) => { processAucItem(wtfacWholeAucDumpItem) })
+    );
+}
+
 exports.getAucDump = () => {
     return new Promise((resolve, reject) => {
         dbo.collection(AUC_PRICES_COL).find({}).toArray(function (err, result) {

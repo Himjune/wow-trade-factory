@@ -9,6 +9,10 @@ end
 
 wtfacLastScan = 0;
 wtfacAucDump = {}  -- default value until ADDON_LOADED
+
+wtfacWholeAucDump = {}
+wholeDumpInProgress = false
+
 wtfacMailTrack = {}
 wtfacCraftTrack = {}
 
@@ -65,14 +69,63 @@ function scanPreActions()
 end
 
 local CONST_RIM_PERCENT = (20) /100+1;
-function parseUpdatedPage()
-    if scanItemIdx < 1 then return; end
+
+function parseWholePage()
+    if wholeDumpInProgress == false then return; end
+
     batch,count = GetNumAuctionItems("list");
-    print(batch,count);
+    print("GetNumAuctionItems", batch,count);
+
+    wtfacWholeAucDump = {};
+    wtfacWholeAucDump["items"] = {};
+    wtfacWholeAucDump["ts"] = time();
+
+
+    for itemIndex=1,batch do
+        local name, texture, count, quality, canUse, level, levelColHeader, minBid,
+        minIncrement, buyoutPrice, bidAmount, highBidder, bidderFullName, owner,
+        ownerFullName, saleStatus, itemId, hasAllInfo = GetAuctionItemInfo("list", itemIndex);
+
+        if not wtfacWholeAucDump["items"][itemId] then 
+            wtfacWholeAucDump["items"][itemId] = {}
+            wtfacWholeAucDump["items"][itemId]["itemId"] = itemId; 
+            wtfacWholeAucDump["items"][itemId]["realm"] = curRealm;
+            wtfacWholeAucDump["items"][itemId]["player"] = curPlayer;
+            wtfacWholeAucDump["items"][itemId]["faction"] = curFaction;
+            wtfacWholeAucDump["items"][itemId]["lots"] = {};
+            wtfacWholeAucDump["items"][itemId]["absMin"] = 999999999;
+        end
+
+        if (not buyoutPrice or buyoutPrice <= 0) then buyoutPrice = 0 end;
+        price = math.floor(buyoutPrice / count);
+
+        local proto = {}
+        proto["price"] = price;
+        proto["count"] = count;
+        proto["faction"] = curFaction;
+
+        table.insert(wtfacWholeAucDump["items"][itemId]["lots"], proto);
+
+        if (price > 0 and price < wtfacWholeAucDump["items"][itemId]["absMin"]) then
+            wtfacWholeAucDump["items"][itemId]["absMin"] = buyoutPrice
+        end      
+    end
+
+    print("ended whole")
+    wholeDumpInProgress = false;
+end
+
+function parseUpdatedPage()
+    if (scanItemIdx < 1) then return; end
+    batch,count = GetNumAuctionItems("list");
+    print("GetNumAuctionItems", batch,count);
 
     local isLastPage = (batch<50);
 
     local itemId = wtfacTrackedItems[scanItemIdx];
+
+    if (not(wtfacAucDump[itemId])) then return; end
+
     local itemName, _, _, _, _, _, _, _, _, _, itemSellPrice = GetItemInfo(itemId);
     print("parseUpdatedPage", itemId, itemName);
 
@@ -206,6 +259,12 @@ function scanAuctionForTrackedItems()
     queryItemScan();
 end
 
+function scanAuctionForAll()
+    wholeDumpInProgress = true;
+    wtfacWholeAucDump = {};
+    QueryAuctionItems(nil, nil, nil, 1, nil, 0, true, false);
+end
+
 SLASH_WTFAC1 = "/wtfac"
 SlashCmdList["WTFAC"] = function(msg)
     if msg == "scan" then
@@ -213,6 +272,16 @@ SlashCmdList["WTFAC"] = function(msg)
         if canQuery then
             scanItemIdx = 1;
             scanAuctionForTrackedItems();
+        end
+    end
+
+    if msg == "all" then
+        local canQuery,canQueryAll = CanSendAuctionQuery();
+        if canQueryAll then
+            scanPreActions();
+            scanAuctionForAll();
+        else
+            print("Cant Query All");
         end
     end
 
@@ -305,7 +374,12 @@ local function eventHandler(event, ...)
     end
 
     if event == "AUCTION_ITEM_LIST_UPDATE" then
-        -- print("wtfac aiListUpdate");
+        print("wtfac aiListUpdate");
+
+        if wholeDumpInProgress then 
+            parseWholePage();
+        end
+
         if scanItemIdx>0 then
             parseUpdatedPage();
         end

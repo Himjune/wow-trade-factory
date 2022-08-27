@@ -72,15 +72,16 @@ exports.addCraftedResource = async (itemId, itemName, realm, reagents) => {
         dbo.collection(RESOURCES_COL).findOne({itemId: itemId, price: proto.price, realm: realm}, function (err, found) {
             if (err) throw err;
             if (found) {
-                dbo.collection(RESOURCES_COL).updateOne({ _id: found._id }, { $set: { amount: found.amount + 1, sources: (found.sources.push(proto.sources[0])) } }, function (err, res) {
+                console.log("rCraft", found)
+                /*dbo.collection(RESOURCES_COL).updateOne({ _id: found._id }, { $set: { amount: found.amount + 1, sources: (found.sources.push(proto.sources[0])) } }, function (err, res) {
                     if (err) console.log("Resource update ERR", err, found._id, itemName);
                     resolve(false);
-                });
+                });*/
             } else {
-                dbo.collection(RESOURCES_COL).insertOne(proto, function (err, res) {
+                /*dbo.collection(RESOURCES_COL).insertOne(proto, function (err, res) {
                     if (err) console.log("Resource creation ERR", err, itemName);
                     resolve(true);
-                });
+                });*/
             }
         });
     })

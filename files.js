@@ -9,7 +9,7 @@ require('./database.js').get_dbo.then((resolve) => {
 const saved_vars_parse = require('./savedVarsParse');
 const parseMail = require('./mail').parseMail;
 const parseCrafts = require('./crafts').parseCraftTracks;
-const parseAucDump = require('./aucDump').parseAucDump;
+const {parseAucDump, parseWholeAucDump} = require('./aucDump');
 
 
 const wow_path = "C:\\Program Files (x86)\\World of Warcraft\\_classic_";
@@ -58,7 +58,8 @@ function handleNewParse(newParse) {
   //console.log('handleNewParse', newParse);
   if (newParse && newParse.wtfacMailTrack) parseMail(newParse.wtfacMailTrack);
   if (newParse && newParse.wtfacCraftTrack) parseCrafts(newParse.wtfacCraftTrack);
-  if (newParse && newParse.wtfacAucDump) parseAucDump(newParse.wtfacAucDump);
+  //if (newParse && newParse.wtfacAucDump) parseAucDump(newParse.wtfacAucDump);
+  if (newParse && newParse.wtfacWholeAucDump) parseWholeAucDump(newParse.wtfacWholeAucDump.items);
 }
 
 exports.updateInfoFromSavedVars = async (isForce) => {
